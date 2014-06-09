@@ -3,49 +3,106 @@ package lib;
 import java.util.Iterator;
 import java.util.Map.Entry;
 
-import twitch.Main;
-
 public class Lib {
+	public static StreamerData monstro99;
+	public static StreamerData makidelille ;
 
+	public static void init() {
+		monstro99 = new Monstro99();
+		makidelille = new Makidelille();
+	}
+	
 	public static String getCfg(String channel, String piece) {
-		String re ="erreur";
+		String re ="";
 		String key,value;
-		
-		//TODO
-		
+	
 		if (channel.equalsIgnoreCase("#monstro99")){
-			if(Main.monstro99.getCfg().containsKey(piece.toUpperCase())) {
-				re = piece.toUpperCase() + " : " + Main.monstro99.getCfg().get(piece);
+			if(monstro99.getCfg().containsKey(piece.toUpperCase())) {
+				re = piece.toUpperCase() + " : " + monstro99.getCfg().get(piece.toUpperCase());
 			}else if(piece == "*") {
-				Iterator<Entry<String, String>> it = Main.monstro99.getCfg().entrySet().iterator();
+				re = "";
+				Iterator<Entry<String, String>> it = monstro99.getCfg().entrySet().iterator();
 				while(it.hasNext()) {
-					re += it.toString().toUpperCase() + Main.monstro99.getCfg().get(it).toString();
+					Entry<String, String> entry = (Entry<String, String>) it.next();
+					key = entry.getKey();
+					value = entry.getValue();
+					re += key.toUpperCase() + " : " + value + "; ";
 				}
+			}else{
+				re = "argument invalide";
 			}
+		}else if(channel.equalsIgnoreCase("#makidelille")){
+			if(makidelille.getCfg().containsKey(piece.toUpperCase())) {
+				re = piece.toUpperCase() + " : " +  makidelille.getCfg().get(piece.toUpperCase());
+			}else if(piece == "*") {
+				Iterator<Entry<String, String>> it = makidelille.getCfg().entrySet().iterator();
+				while(it.hasNext()) {
+					Entry<String, String> entry = (Entry<String, String>) it.next();
+					key = entry.getKey();
+					value = entry.getValue();
+					re += key.toUpperCase() + " : " + value;
+				}
+			}else{
+				re = "argument invalid";
+			}
+		}else{
+			re = "no data";
 		}
-//		else if(channel.equalsIgnoreCase("#makidelille")){
-//			if(Makidelille.cfg.containsKey(piece.toUpperCase())) {
-//				re = piece.toUpperCase() + " : " +  Makidelille.cfg.get(piece);
-//			}else if(piece == "*") {
-//				System.out.println("all");
-//				Iterator<Entry<String, String>> it = Makidelille.cfg.entrySet().iterator();
-//				while(it.hasNext()) {
-//					Entry<String, String> entry = (Entry<String, String>) it.next();
-//					key = entry.getKey();
-//					value = entry.getValue();
-//					re += key.toUpperCase() + " : " + value;
-//				}
-//			}
-//		}
 		return re;
 	}
 	
 	public static String getResolution(String channel) {
 		switch(channel) {
-		case "#monstro99" : return Main.monstro99.getResolution();
-		case "#makidelille" : return Makidelille.resolution;
+		case "#monstro99" : return monstro99.getResolution();
+		case "#makidelille" : return makidelille.getResolution();
 		default : return "unknown";
 		}
+	}
+	
+	public static boolean isUserOp(String user) {
+		
+		
+		
+		return false;
+	}
+
+	public static String getControls(String channel, String piece) {
+		String re ="";
+		String key,value;
+	
+		if (channel.equalsIgnoreCase("#monstro99")){
+			if(monstro99.getCfg().containsKey(piece.toUpperCase())) {
+				re = piece.toUpperCase() + " : " + monstro99.getControllers().get(piece.toUpperCase());
+			}else if(piece == "*") {
+				re = "";
+				Iterator<Entry<String, String>> it = monstro99.getControllers().entrySet().iterator();
+				while(it.hasNext()) {
+					Entry<String, String> entry = (Entry<String, String>) it.next();
+					key = entry.getKey();
+					value = entry.getValue();
+					re += key.toUpperCase() + " : " + value + "; ";
+				}
+			}else{
+				re = "argument invalide";
+			}
+		}else if(channel.equalsIgnoreCase("#makidelille")){
+			if(makidelille.getCfg().containsKey(piece.toUpperCase())) {
+				re = piece.toUpperCase() + " : " +  makidelille.getControllers().get(piece.toUpperCase());
+			}else if(piece == "*") {
+				Iterator<Entry<String, String>> it = makidelille.getControllers().entrySet().iterator();
+				while(it.hasNext()) {
+					Entry<String, String> entry = (Entry<String, String>) it.next();
+					key = entry.getKey();
+					value = entry.getValue();
+					re += key.toUpperCase() + " : " + value;
+				}
+			}else{
+				re = "argument invalid";
+			}
+		}else{
+			re = "no data";
+		}
+		return re;
 	}
 	
 }
