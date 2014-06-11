@@ -11,26 +11,33 @@ import twitch.lib.StreamerData;
 
 
 public class Bot extends PircBot {
+    private static int spamDelay = 60;
     
-    public boolean       isPaused;
     private boolean      debugMode    = false;
     private boolean      silentMode   = false;
+    public boolean       isPaused     = false;
     public boolean       forceQuit    = false;
+    private boolean      alwaysAnswer = true;
     private StreamerData stream       = null;
     private RBot         rBot;
-    private boolean      alwaysAnswer = true;
-    
+    private long lastCmdtime;
+    private boolean antiSpam = false;
+        
     public Bot(String name, boolean silentMode) {
         this.setName(name);
-        this.setMessageDelay(10);
+        this.setMessageDelay(100);
         this.isPaused = false;
         new HashMap<String, Boolean>();
         this.silentMode = silentMode;
+        lastCmdtime = System.nanoTime();
     }
     
     @Override
     protected void onMessage(String channel, String sender, String login, String hostname, String msg) {
-        if ((isPaused && !stream.isUserOp(getStreamChannel(), sender)) || stream == null) return;
+        long cmdtime = System.nanoTime();
+        int difS = (int) ((cmdtime - lastCmdtime)/Math.pow(10, 9));
+        
+        if ((isPaused && !stream.isUserOp(channel, sender)) || stream == null) return;
         if (msg.toLowerCase().contains("hodor") && !msg.startsWith("!") && !isPaused) {
             sendMessage(channel, "/me HODOR");
             return;
@@ -39,6 +46,10 @@ public class Bot extends PircBot {
             sendText(channel, "Toi aussi, tu sais pas les faire Xd");
             return;
         }
+        if(!stream.isUserOp(channel, sender) && (difS < spamDelay && antiSpam)) return;
+        lastCmdtime = cmdtime;
+        
+        
         String[] msgArray = msg.split(" ");
         String cmd = msgArray[0].toLowerCase();
         boolean singleCmd = msgArray.length == 1;
@@ -47,19 +58,12 @@ public class Bot extends PircBot {
                 case "!ping":
                     sendMeText(channel, "pong");
                     return;
-                case "!delay":
-                    if (singleCmd) {
-                        sendMeText(channel, "latence entre deux messages " + this.getMessageDelay() + "ms");
-                    } else {
-                        int time = Integer.valueOf(msgArray[1]);
-                        this.setMessageDelay(time);
-                        sendMeText(channel, "latence entre deux messages " + time + "ms");
-                    }
-                    return;
                 case "!leave":
-                    sendMeText(channel, "Bot leaving and returning home ...");
-                    this.partChannel(channel);
-                    this.joinChannel(Main.MASTERCHANNEL);
+                    if (!singleCmd && (sender.equalsIgnoreCase(Main.MASTER) || sender.equalsIgnoreCase("makidelille"))) {
+                        sendMeText(channel, "Bot leaving and returning home ...");
+                        this.partChannel(channel);
+                        this.joinChannel(Main.MASTERCHANNEL);
+                    }
                     return;
                 case "!join":
                     if (!singleCmd && (sender.equalsIgnoreCase(Main.MASTER) || sender.equalsIgnoreCase("makidelille"))) {
@@ -74,7 +78,8 @@ public class Bot extends PircBot {
                     }
                     return;
                 case "!pause":
-                    sendMeText(channel, "Bot en pause");
+                    if(isPaused) sendMeText(channel, "@s --> FailFish", sender);
+                    else sendMeText(channel, "Bot en pause");
                     this.isPaused = true;
                     return;
                 case "!resume":
@@ -87,7 +92,7 @@ public class Bot extends PircBot {
                     Main.load();
                     return;
                 case "!debug":
-                    if (sender.equalsIgnoreCase("makidelille")) {
+                    if (sender.equalsIgnoreCase(Main.MASTER)) {
                         debugMode = !debugMode;
                         sendMeText(channel, "Debug Mode : " + (debugMode ? "On" : "Off"));
                         this.setVerbose(debugMode);
@@ -109,10 +114,40 @@ public class Bot extends PircBot {
                     this.alwaysAnswer = false;
                     sendMeText(channel, "je repondrai qu'aux bons :P");
                     return;
+                case "!spam" :
+                    if(singleCmd){
+                        antiSpam = true;
+                        sendMeText(channel, "AntiSpam actif avec pour délai : " + spamDelay +"s");
+                        return;
+                    }try{
+                        if(msgArray[1].equalsIgnoreCase("off")){
+                            antiSpam = false;
+                            sendMeText(channel, "AntiSpam éteint.Attention le chaos arrive...");
+                            return;
+                        }else if(msgArray[1].equalsIgnoreCase("set")){
+                            spamDelay = Integer.valueOf(msgArray[2]);
+                            sendMeText(channel, "Temps entre deux message : " + spamDelay +"s");
+                            return;
+                        }else if(msgArray[1].equalsIgnoreCase("on")){
+                            try{
+                                spamDelay = Integer.valueOf(msgArray[2]);
+                            }catch(NumberFormatException | IndexOutOfBoundsException e){}
+                            finally{
+                                antiSpam = true;
+                                sendMeText(channel, "AntiSpam actif avec pour délai : " + spamDelay +"s");                                
+                            }
+                            return;
+                        }
+                    }catch(IndexOutOfBoundsException | NumberFormatException e){
+                     sendText(channel, "@s : erreur dans les arguments, y a pas de débat possible :o", sender);   
+                    }                    
+                    return;
             }
         }
-        if (!handleChannelMsg(channel, sender, msg)) if (!handleChannelMsg(StreamerData.common.getName(), sender, msg)) {
-            if (msg.startsWith("!") && alwaysAnswer) sendText(channel, "hum...NOPE");
+        if (!handleChannelMsg(channel, sender, msg)) { 
+            if (!handleChannelMsg(StreamerData.common.getName(), sender, msg)) {
+                if (msg.startsWith("!") && alwaysAnswer) sendText(channel, "hum...NOPE");
+            }
         } else {
             return;
         }
@@ -136,8 +171,23 @@ public class Bot extends PircBot {
         if (login.equalsIgnoreCase(this.getName())) {
             Main.log("RW BOT READY");
             rBot.joinChannel(channel);
-            if (!silentMode) sendText(channel, RandomText.getRanJoin());
+            if (!silentMode) sendText(channel, RandomText.getRanJoin(),"");
             stream = StreamerData.getStreamerData(channel);
+        }else if(login.equalsIgnoreCase("FSG_SoWEeZ") || login.equalsIgnoreCase("schizolefrene") || login.equalsIgnoreCase("bubucho") ){
+            sendText(channel, RandomText.getRanJoin(), login);
+        }
+    }
+    
+    @Override
+    protected void onPart(String channel, String sender, String login, String hostname) {
+        super.onPart(channel, sender, login, hostname);
+        if (login.equalsIgnoreCase(this.getName())) {
+            Main.log("RW BOT READY");
+            rBot.joinChannel(channel);
+            if (!silentMode) sendText(channel, RandomText.getRanLeave(),"");
+            stream = StreamerData.getStreamerData(channel);
+        }else if(login.equalsIgnoreCase("FSG_SoWEeZ") || login.equalsIgnoreCase("schizolefrene") || login.equalsIgnoreCase("bubucho")){
+            sendText(channel, RandomText.getRanLeave(), login);
         }
     }
     
@@ -158,7 +208,7 @@ public class Bot extends PircBot {
     
     public void sendText(String channel, String msg, String sender) {
         if (!channel.startsWith("#")) channel = "#" + channel;
-        String newMsg = msg.replace("@s", sender);
+        String newMsg = msg.replace("[@s]", sender);
         this.sendText(channel, newMsg);
     }
     
@@ -169,8 +219,8 @@ public class Bot extends PircBot {
     
     public void sendMeText(String channel, String msg, String sender) {
         if (!channel.startsWith("#")) channel = "#" + channel;
-        if (msg.startsWith("@m")) msg = msg.substring(2);
-        String newMsg = msg.replace("@s", sender);
+        if (msg.startsWith("[@m]")) msg = msg.substring(4);
+        String newMsg = msg.replace("[@s]", sender);
         this.sendMeText(channel, newMsg);
     }
     

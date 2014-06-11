@@ -40,7 +40,11 @@ public class RandomText {
             if (join.size() < 2) join = new ArrayList<String>();
             for (int index = 0; index < join.size(); index++) {
                 String line = join.get(index);
-                if (line.contains("#")) join.remove(index);
+                if (line.contains("#")) {
+                    join.remove(index);
+                    continue;
+                }
+                Main.log("Ajout à 'join' : " + line);
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -53,7 +57,11 @@ public class RandomText {
             if (leave.size() < 2) leave = new ArrayList<String>();
             for (int index = 0; index < leave.size(); index++) {
                 String line = leave.get(index);
-                if (line.contains("#")) leave.remove(index);
+                if (line.contains("#")){
+                    leave.remove(index);
+                    continue;
+                }
+                Main.log("Ajout à 'leave' : " + line);
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -66,7 +74,11 @@ public class RandomText {
             if (random.size() < 2) random = new ArrayList<String>();
             for (int index = 0; index < random.size(); index++) {
                 String line = random.get(index);
-                if (line.contains("#")) random.remove(index);
+                if (line.contains("#")) {
+                    random.remove(index);
+                    continue;
+                }
+                Main.log("Ajout à 'random' : " + line);
             }
         } catch (IOException e) {
             e.printStackTrace();

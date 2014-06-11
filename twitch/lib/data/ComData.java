@@ -51,11 +51,19 @@ public class ComData extends StreamerData {
                     return;
                 }
                 if (msgArray[1].equalsIgnoreCase("join")) {
-                    bot.sendText(bot.getStreamChannel(), "@s : " + RandomText.getRanJoin(), sender);
+                    try{
+                        bot.sendText(bot.getStreamChannel(), sender +" : " + RandomText.getRanJoin(), msgArray[2]);
+                    }catch(IndexOutOfBoundsException e){
+                        bot.sendText(bot.getStreamChannel(), sender +" : essaie encore. Mais avec les bons parametres :P");
+                    }
                     return;
                 }
                 if (msgArray[1].equalsIgnoreCase("leave")) {
-                    bot.sendText(bot.getStreamChannel(), "@s : " + RandomText.getRanLeave(), sender);
+                    try{
+                        bot.sendText(bot.getStreamChannel(), sender +" : " +RandomText.getRanLeave(), msgArray[2]);
+                    }catch(IndexOutOfBoundsException e){
+                        bot.sendText(bot.getStreamChannel(), sender +" : essaie encore. Mais avec les bons parametres :P");
+                    }
                     return;
                 }
                 try {
@@ -64,7 +72,7 @@ public class ComData extends StreamerData {
                     bot.sendText(bot.getStreamChannel(), "" + rand.nextInt(value));
                 } catch (NumberFormatException e) {
                     e.printStackTrace();
-                    bot.sendText(bot.getStreamChannel(), "paramatre non valide");
+                    bot.sendText(bot.getStreamChannel(), "parametre non valide");
                 }
                 return;
             case "!votetimeout":
@@ -72,7 +80,7 @@ public class ComData extends StreamerData {
                 selected = msgArray[1];
                 try {
                     toTime = Integer.valueOf(msgArray[2]);
-                } catch (NumberFormatException e) {
+                } catch (NumberFormatException | IndexOutOfBoundsException e) {
                     bot.sendText(bot.getStreamChannel(), "temps invalide, valeur par default = 300sec");
                     toTime = 300;
                 }
@@ -162,19 +170,16 @@ public class ComData extends StreamerData {
                     bot.sendText(bot.getStreamChannel(), "commandes chez " + stream.getName() + " : " + stream.getCommandsList());
                     return;
                 case "!randadd":
-                    if (singleCmd || msgArray.length < 2) {
+                    if (singleCmd) {
                         bot.sendText(bot.getStreamChannel(), "arguments manquants");
-                        return;
                     } else if (msgArray[1].equalsIgnoreCase("join")) {
                         if (RandomText.addRanJoin(arrayToString(msgArray, 2))) bot.sendText(bot.getStreamChannel(), "Fait");
-                        return;
                     } else if (msgArray[1].equalsIgnoreCase("leave")) {
                         if (RandomText.addRanLeave(arrayToString(msgArray, 2))) bot.sendText(bot.getStreamChannel(), "Fait");
-                        return;
-                    } else if (msgArray[1].equalsIgnoreCase("sentence")) {
-                        if (RandomText.addRanSentence(arrayToString(msgArray, 2))) bot.sendText(bot.getStreamChannel(), "Fait");
-                        return;
+                    } else {
+                        if (RandomText.addRanSentence(arrayToString(msgArray, 1))) bot.sendText(bot.getStreamChannel(), "Fait");
                     }
+                    Main.load();
                     return;
                 case "!oplist":
                     String op = "Maitre du Bot : " + Main.MASTER;

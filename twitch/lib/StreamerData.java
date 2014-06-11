@@ -90,7 +90,7 @@ public abstract class StreamerData {
             return;
         } else {
             String display = cmdsBasics.get(cmd);
-            if (display.startsWith("@m")) {
+            if (display.startsWith("[@m]")) {
                 bot.sendMeText(bot.getStreamChannel(), display, sender);
             } else {
                 bot.sendText(bot.getStreamChannel(), display, sender);
@@ -119,7 +119,7 @@ public abstract class StreamerData {
                     String[] array = line.split("=");
                     try {
                         if (!cmdsBasics.containsKey(array[0])) {
-                            Main.log("nouvelle commande : " + array[0].toLowerCase() + " Reponse : " + array[1]);
+                            Main.log("Commande : " + array[0].toLowerCase() + " | Réponse : " + array[1]);
                             cmdsBasics.put(array[0].toLowerCase(), array[1]);
                         }
                     } catch (IndexOutOfBoundsException e) {
@@ -127,7 +127,7 @@ public abstract class StreamerData {
                     }
                 } else if (line.startsWith("@")) {
                     line = line.replace('@', '!');
-                    Main.log("nouvelle commande speciale : " + line);
+                    Main.log("Commande speciale : " + line);
                     cmdsSpecial.add(line.toLowerCase());
                 }
             }
@@ -151,9 +151,9 @@ public abstract class StreamerData {
     public String getCommandsList() {
         String re = "";
         for (String line : cmdsBasics.keySet())
-            re += line + " ";
+            re += line + " | ";
         for (String line : cmdsSpecial)
-            re += line + " ";
+            re += line + " | ";
         return re;
     }
     

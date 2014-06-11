@@ -3,7 +3,6 @@ package twitch;
 
 import java.io.IOException;
 import java.net.ConnectException;
-import java.sql.Time;
 import java.text.DateFormat;
 import java.util.Date;
 import java.util.Scanner;
@@ -23,7 +22,7 @@ public class Main {
     public static final String MASTERCHANNEL = "#" + MASTER;
     
     public static void main(String[] args) throws Exception {
-        startTime = System.currentTimeMillis();
+        startTime = System.nanoTime();
         log("        START");
         log("=======================");
         Scanner sc;
@@ -80,8 +79,8 @@ public class Main {
     }
     
     public static void stop() {
-        Time dif = new Time(System.currentTimeMillis() - startTime);
-        log("EXECUTION TIME : " + dif);
+        int dif =(int) ((System.nanoTime() - startTime)/Math.pow(10, 9));
+        log("EXECUTION TIME : " + dif + "s");
         log("=======================");
         log("=======================");
         log("        END");
