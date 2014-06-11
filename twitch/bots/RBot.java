@@ -43,6 +43,7 @@ public class RBot extends PircBot {
         if(login.equalsIgnoreCase(this.getName())) {
             this.channel = channel;
             this.changePath();
+            Main.log("R BOT READY");
         }else if(path != null){
             FileRWHelper.writeEndStringWithDateInFile(path, login +" joined");
         }

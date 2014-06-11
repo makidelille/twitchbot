@@ -4,9 +4,9 @@ package twitch.lib.data;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map.Entry;
-import java.util.Random;
 
 import twitch.bots.Bot;
+import twitch.lib.RandomText;
 import twitch.lib.StreamerData;
 
 
@@ -106,18 +106,9 @@ public class Monstro99Data extends StreamerData {
                 return;
             case "!rage":
                 int par = Integer.valueOf(msgArray[1]);
-                bot.sendText(channel, getRandomSentence(par), sender);
+                bot.sendText(channel,sender + " : " + RandomText.getRandomString(par));
                 return;
         }
     }
 
-    private String getRandomSentence(int par) {
-        Random rand = new Random();
-        String re=" ";
-        for(int i=0; i< par; i++) {
-            char c = (char) (rand.nextFloat() * Byte.MAX_VALUE); //TODO waork on it
-            re +=c ;
-        }
-        return re;
-    }
 }

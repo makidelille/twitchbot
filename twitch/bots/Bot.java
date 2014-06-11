@@ -1,7 +1,6 @@
 
 package twitch.bots;
 
-import java.sql.Time;
 import java.util.HashMap;
 
 import org.jibble.pircbot.PircBot;
@@ -71,9 +70,7 @@ public class Bot extends PircBot {
                     return;
                 case "!quit":
                     if (sender.equalsIgnoreCase(Main.MASTER) || sender.equalsIgnoreCase("makidelille")) {
-                        this.quitServer("ended by " + sender);
-                        Main.log("STOPPING...");
-                        this.forceQuit = true;
+                        quit();
                     }
                     return;
                 case "!pause":
@@ -124,13 +121,6 @@ public class Bot extends PircBot {
     @Override
     protected void onDisconnect() {
         super.onDisconnect();
-        if (this.forceQuit) {
-            this.dispose();
-            Time dif = new Time(System.currentTimeMillis() - Main.startTime);
-            Main.log("EXECUTION TIME : " + dif);
-            Main.log("END");
-            System.out.close();
-        }
     }
     
     @Override
@@ -143,7 +133,7 @@ public class Bot extends PircBot {
     protected void onJoin(String channel, String sender, String login, String hostname) {
         super.onJoin(channel, sender, login, hostname);
         if (login.equalsIgnoreCase(this.getName())) {
-            Main.log("BOT READY");
+            Main.log("RW BOT READY");
             rBot.joinChannel(channel);
             if (!silentMode) sendText(channel, RandomText.getRanJoin());
             stream = StreamerData.getStreamerData(channel);
@@ -190,6 +180,7 @@ public class Bot extends PircBot {
     
     public boolean handleChannelMsg(String channel, String sender, String msg) {
         StreamerData tempStream = StreamerData.getStreamerData(channel);
+        boolean op = tempStream.isUserOp(channel, sender);
         boolean success = false;
         String[] msgArray = msg.split(" ");
         String cmd = msgArray[0];
@@ -197,7 +188,7 @@ public class Bot extends PircBot {
             if (tempStream.isChannelCmd(cmd)) {
                 tempStream.onCmd(this, sender, msg);
                 return true;
-            } else if (cmd.equalsIgnoreCase("!addcmd")) {
+            } else if (cmd.equalsIgnoreCase("!addcmd") && op) {
                 try {
                     String dis = "";
                     for (int i = 2; i < msgArray.length; i++) {
@@ -214,7 +205,7 @@ public class Bot extends PircBot {
                     } else sendText(getStreamChannel(), "Erreur dans l'ajout de la commande");
                 }
                 return true;
-            } else if (cmd.equalsIgnoreCase("!delcmd")) {
+            } else if (cmd.equalsIgnoreCase("!delcmd") && op) {
                 try {
                     success = tempStream.removeCommand(msgArray[1]);
                 } catch (IndexOutOfBoundsException e) {
@@ -227,7 +218,7 @@ public class Bot extends PircBot {
                     } else sendText(getStreamChannel(), "Erreur dans la suppression de  la commande");
                 }
                 return true;
-            } else if (cmd.equalsIgnoreCase("!addgcmd") && tempStream == StreamerData.common && sender.equalsIgnoreCase(Main.MASTER)) {
+            } else if (cmd.equalsIgnoreCase("!addgencmd") && tempStream == StreamerData.common && sender.equalsIgnoreCase(Main.MASTER)) {
                 try {
                     String dis = "";
                     for (int i = 2; i < msgArray.length; i++) {
@@ -244,7 +235,7 @@ public class Bot extends PircBot {
                     } else sendText(getStreamChannel(), "Erreur dans l'ajout de la commande");
                 }
                 return true;
-            } else if (cmd.equalsIgnoreCase("!delgcmd") && tempStream == StreamerData.common && sender.equalsIgnoreCase(Main.MASTER)) {
+            } else if (cmd.equalsIgnoreCase("!delgencmd") && tempStream == StreamerData.common && sender.equalsIgnoreCase(Main.MASTER)) {
                 try {
                     success = tempStream.removeCommand(msgArray[1]);
                 } catch (IndexOutOfBoundsException e) {
@@ -265,5 +256,18 @@ public class Bot extends PircBot {
     
     public String getStreamChannel() {
         return stream.getName();
+    }
+
+    private void quit(){
+        Main.log("BOTS DISCONNECTING");
+        rBot.disconnect();
+        this.disconnect();
+
+        
+        rBot.dispose();
+        this.dispose();
+        
+        Main.stop();
+       
     }
 }

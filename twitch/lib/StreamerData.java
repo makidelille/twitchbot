@@ -1,7 +1,6 @@
 
 package twitch.lib;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -66,26 +65,16 @@ public abstract class StreamerData {
         try {
             cmdsFile = Paths.get(Main.APPDATA + channel + ".txt");
             Main.log("chargement de : " + cmdsFile.toAbsolutePath().toString());
-            if (!Files.exists(cmdsFile)) createCmdFile();
+            if (!Files.exists(cmdsFile)) {
+                FileRWHelper.createNewFile(cmdsFile);
+                FileRWHelper.writeEndStringInFile(cmdsFile, "#" + this.channel);
+            }
             generateCmdsMap();
         } catch (NullPointerException e) {
             e.printStackTrace();
         }
     }
-    
-    private boolean createCmdFile() {
-        Main.log("Creating new file for channel : " + channel);
-        Main.log(cmdsFile.toAbsolutePath().toString());
-        try {
-            File file = new File(cmdsFile.toString());
-            file.createNewFile();
-            Main.log("File created succesfully");
-            return true;
-        } catch (IOException e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
+
     
     public HashMap<String, String> getCmds() {
         return cmdsBasics;
@@ -103,9 +92,9 @@ public abstract class StreamerData {
         } else {
             String display = cmdsBasics.get(cmd);
             if (display.startsWith("@m")) {
-                bot.sendMeText(this.channel, display, sender);
+                bot.sendMeText(bot.getStreamChannel(), display, sender);
             } else {
-                bot.sendText(this.channel, display, sender);
+                bot.sendText(bot.getStreamChannel(), display, sender);
             }
             return;
         }
@@ -125,9 +114,9 @@ public abstract class StreamerData {
         try {
             List<String> lines = Files.readAllLines(cmdsFile, StandardCharsets.UTF_8);
             for (String line : lines) {
-                if (line.startsWith("_")) {
+                if (line.startsWith("#")) {
                     continue;
-                } else if (line.startsWith("!")) {
+                }else if (line.startsWith("!")) {
                     String[] array = line.split("=");
                     try {
                         if (!cmdsBasics.containsKey(array[0])) {
@@ -156,8 +145,8 @@ public abstract class StreamerData {
     
     public boolean removeCommand(String cmd) {
         if (!cmdsBasics.containsKey("!" + cmd.toLowerCase())) return false;
-        String s = "!" + cmd + "=" + cmdsBasics.get(cmd) + "\n";
-        return FileRWHelper.deleteString(cmdsFile, s);
+        String s = "!" + cmd + "=" + cmdsBasics.get("!" + cmd);
+        return FileRWHelper.deleteString(cmdsFile, s,"#" +  this.channel);
     }
     
     public String getCommandsList() {
