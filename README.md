@@ -1,4 +1,4 @@
-# twitchbot
+# TWITCHBOT
 
 Ecrit par makidelille http://twitter.com/makidelille.
 
