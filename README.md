@@ -14,8 +14,6 @@ Ecrit par makidelille http://twitter.com/makidelille.
 ## COMMANDES ADMIN
 
 * !ping pong.
-* !delay indique le temps de latence entre deux messages du bot.
-* !delay [par] défini le temps de latence entre deux messages du bot à [par]ms.
 * !leave quitte le tchat.
 * !join [par] rejoint le tchat [par].
 * !quit arréte le bot.
@@ -31,9 +29,11 @@ Ecrit par makidelille http://twitter.com/makidelille.
 
 * !addcmd [cmd] [msg] même que !addgencmd mais est spécifique au tchat dans lequel le bot est.
 * !delcmd [cmd] même que !delgencmd mais est spécifique au tchat dans lequel le bot est.
-* !randadd [join || leave || sentence] [msg] ajoute [msg] aux bibiliothèques des phrase aléatoire.
+* !randadd [join || leave ] [msg] ajoute [msg] aux bibiliothèques des phrase aléatoire.
 * !cancel anule le !votetimeout en cours.
 * !result affiche le resultat du !votetimeout est fait le necessaire.
+* !spam active l'antispam avec les paramétre précdant par défault = 60s
+* !spam [on || off || set] [temps] active/desactive l'antispam avec [temps]s entre chaque reponse du bot
 * !cmdlist affiche la liste des commandes disponibles.
 * !oplist affiche la liste des Ops disponibles.
 
