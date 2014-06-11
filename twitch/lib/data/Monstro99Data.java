@@ -1,20 +1,21 @@
 
-package twitch.lib;
+package twitch.lib.data;
 
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map.Entry;
+import java.util.Random;
 
-import twitch.Bot;
+import twitch.bots.Bot;
+import twitch.lib.StreamerData;
 
 
-public class Monstro99 extends StreamerData {
+public class Monstro99Data extends StreamerData {
     
     public HashMap<String, String> cfg;
     public HashMap<String, String> controls;
-    public String                  resolution = "1280x800 @120Hz";
     
-    public Monstro99() {
+    public Monstro99Data() {
         super("monstro99");
     }
     
@@ -28,6 +29,7 @@ public class Monstro99 extends StreamerData {
         cfg.put("MB", "EVGA P55 FTW");
         cfg.put("SOUND CARD", "X-Fi sound blaster XG fatal1ty");
         cfg.put("PSU", "Corsair HX 850");
+        
         controls = new HashMap<String, String>();
         controls.put("MOUSE", "Logitech G500");
         controls.put("MOUSE PAD", "");
@@ -93,6 +95,29 @@ public class Monstro99 extends StreamerData {
                 }
                 bot.sendText(channel, cfg, sender);
                 return;
+            case "!controls":
+                String controls;
+                if (singleCmd) {
+                    controls = this.getControllers("*");
+                } else {
+                    controls = this.getControllers(msgArray[1]);
+                }
+                bot.sendText(channel, controls, sender);
+                return;
+            case "!rage":
+                int par = Integer.valueOf(msgArray[1]);
+                bot.sendText(channel, getRandomSentence(par), sender);
+                return;
         }
+    }
+
+    private String getRandomSentence(int par) {
+        Random rand = new Random();
+        String re=" ";
+        for(int i=0; i< par; i++) {
+            char c = (char) (rand.nextFloat() * Byte.MAX_VALUE); //TODO waork on it
+            re +=c ;
+        }
+        return re;
     }
 }

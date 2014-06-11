@@ -1,3 +1,0 @@
-_TOPIC
-!CMD=MSG
-!CMD2=MSG2

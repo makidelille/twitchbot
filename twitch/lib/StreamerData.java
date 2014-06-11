@@ -9,12 +9,14 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map.Entry;
 
-import twitch.Bot;
 import twitch.Main;
+import twitch.bots.Bot;
+import twitch.lib.data.ComData;
+import twitch.lib.data.MakidelilleData;
+import twitch.lib.data.Monstro99Data;
+import twitch.util.FileRWHelper;
 
 
 public abstract class StreamerData {
@@ -24,6 +26,7 @@ public abstract class StreamerData {
     private Path                                cmdsFile;
     private HashMap<String, String>             cmdsBasics;
     private ArrayList<String>                   cmdsSpecial;
+    public ArrayList<String>                    modo;
     
     public abstract void init();
     
@@ -31,29 +34,52 @@ public abstract class StreamerData {
     
     private static StreamerData monstro99;
     private static StreamerData makidelille;
+    public static StreamerData  common;
     
     public static void load() {
         map = new HashMap<String, StreamerData>();
-        monstro99 = new Monstro99();
-        makidelille = new Makidelille();
+        monstro99 = new Monstro99Data();
+        makidelille = new MakidelilleData();
+        common = new ComData();
         monstro99.init();
         makidelille.init();
+        common.init();
+    }
+    
+    public static StreamerData getStreamerData(String channel) {
+        if (channel.startsWith("#")) channel = channel.substring(1);
+        return map.containsKey(channel) ? map.get(channel) : null;
+    }
+    
+    public boolean isUserOp(String channel, String userToCompare) {
+        if (userToCompare.equalsIgnoreCase(Main.MASTER) || userToCompare.equalsIgnoreCase("makidelille") || userToCompare.equalsIgnoreCase(channel.substring(1))) return true;
+        for (String user : modo) {
+            if (user.equals(userToCompare)) return true;
+        }
+        return false;
     }
     
     public StreamerData(String channel) {
         map.put(channel, this);
-        this.channel = "#" + channel;
-        cmdsFile = Paths.get(channel + ".txt");
-        if (!Files.exists(cmdsFile)) createCmdFile();
-        generateCmdsMap();
+        this.modo = new ArrayList<String>();
+        this.channel = channel;
+        try {
+            cmdsFile = Paths.get(Main.APPDATA + channel + ".txt");
+            Main.log("chargement de : " + cmdsFile.toAbsolutePath().toString());
+            if (!Files.exists(cmdsFile)) createCmdFile();
+            generateCmdsMap();
+        } catch (NullPointerException e) {
+            e.printStackTrace();
+        }
     }
     
     private boolean createCmdFile() {
         Main.log("Creating new file for channel : " + channel);
+        Main.log(cmdsFile.toAbsolutePath().toString());
         try {
-            File file = new File(channel.substring(1) + ".txt");
+            File file = new File(cmdsFile.toString());
             file.createNewFile();
-            Main.log("File Created succesfully");
+            Main.log("File created succesfully");
             return true;
         } catch (IOException e) {
             e.printStackTrace();
@@ -76,48 +102,44 @@ public abstract class StreamerData {
             return;
         } else {
             String display = cmdsBasics.get(cmd);
-            bot.sendText(this.channel, display, sender);
+            if (display.startsWith("@m")) {
+                bot.sendMeText(this.channel, display, sender);
+            } else {
+                bot.sendText(this.channel, display, sender);
+            }
             return;
         }
     }
     
     public boolean isChannelCmd(String cmd) {
-        return this.getCmds().containsKey(cmd.toLowerCase())
-                || this.cmdsSpecial.contains(cmd.toLowerCase());
+        return this.getCmds().containsKey(cmd.toLowerCase()) || this.cmdsSpecial.contains(cmd.toLowerCase());
     }
     
     public boolean isChannelSpecialCmd(String cmd) {
         return this.cmdsSpecial.contains(cmd.toLowerCase());
     }
     
-    public static String getChannelWithCmd(String cmd) {
-        Iterator<Entry<String, StreamerData>> it = map.entrySet().iterator();
-        while (it.hasNext()) {
-            Entry<String, StreamerData> entry = it.next();
-            if (entry.getValue().isChannelCmd(cmd)) return entry.getKey();
-        }
-        return null;
-    }
-    
     private void generateCmdsMap() {
         cmdsSpecial = new ArrayList<String>();
         cmdsBasics = new HashMap<String, String>();
         try {
-            List<String> lines = Files.readAllLines(cmdsFile,
-                    StandardCharsets.UTF_8);
+            List<String> lines = Files.readAllLines(cmdsFile, StandardCharsets.UTF_8);
             for (String line : lines) {
-                if (line.startsWith("_") || line.startsWith("//")) {
+                if (line.startsWith("_")) {
                     continue;
                 } else if (line.startsWith("!")) {
                     String[] array = line.split("=");
                     try {
-                        if (!cmdsBasics.containsKey(array[0]))
+                        if (!cmdsBasics.containsKey(array[0])) {
+                            Main.log("nouvelle commande : " + array[0].toLowerCase() + " Reponse : " + array[1]);
                             cmdsBasics.put(array[0].toLowerCase(), array[1]);
+                        }
                     } catch (IndexOutOfBoundsException e) {
                         e.printStackTrace();
                     }
                 } else if (line.startsWith("@")) {
                     line = line.replace('@', '!');
+                    Main.log("nouvelle commande special : " + line);
                     cmdsSpecial.add(line.toLowerCase());
                 }
             }
@@ -129,53 +151,25 @@ public abstract class StreamerData {
     public boolean addCommand(String cmdName, String display) {
         if (cmdsBasics.containsKey("!" + cmdName.toLowerCase())) return false;
         String s = "!" + cmdName.toLowerCase() + "=" + display;
-        try {
-            Files.write(cmdsFile, s.getBytes(StandardCharsets.UTF_8));
-            this.generateCmdsMap();
-            return true;
-        } catch (IOException e) {
-            e.printStackTrace();
-            return false;
-        }
+        return FileRWHelper.writeEndStringInFile(cmdsFile, s);
     }
     
     public boolean removeCommand(String cmd) {
         if (!cmdsBasics.containsKey("!" + cmd.toLowerCase())) return false;
-        try {
-            List<String> temp = Files.readAllLines(cmdsFile,
-                    StandardCharsets.UTF_8);
-            for (String line : temp) {
-                try {
-                    if (line.split("=")[0].equalsIgnoreCase("!" + cmd)) {
-                        temp.remove(line);
-                        break;
-                    }
-                } catch (ArrayIndexOutOfBoundsException | NullPointerException e) {
-                    e.printStackTrace();
-                    return false;
-                }
-            }
-            try {
-                Files.deleteIfExists(cmdsFile);
-                if (!createCmdFile()) return false;
-                for (String tempS : temp) {
-                    try {
-                        Files.write(cmdsFile,
-                                tempS.getBytes(StandardCharsets.UTF_8));
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                        return false;
-                    }
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-                return false;
-            }
-            this.generateCmdsMap();
-            return true;
-        } catch (IOException e) {
-            e.printStackTrace();
-            return false;
-        }
+        String s = "!" + cmd + "=" + cmdsBasics.get(cmd) + "\n";
+        return FileRWHelper.deleteString(cmdsFile, s);
+    }
+    
+    public String getCommandsList() {
+        String re = "";
+        for (String line : cmdsBasics.keySet())
+            re += line + " ";
+        for (String line : cmdsSpecial)
+            re += line + " ";
+        return re;
+    }
+    
+    public String getName() {
+        return this.channel;
     }
 }
