@@ -16,7 +16,7 @@ import twitch.util.FileRWHelper;
 public class RandomText {
     
     private static ArrayList<String> join, leave, random;
-    private static Path         joinPath, leavePath, ranPath;
+    private static Path              joinPath, leavePath, ranPath;
     
     public static void load() {
         joinPath = Paths.get(Main.APPDATA + "random/join.txt");
@@ -37,21 +37,21 @@ public class RandomText {
         join = new ArrayList<String>();
         try {
             join = (ArrayList<String>) Files.readAllLines(joinPath, StandardCharsets.UTF_8);
-            if(join.size() < 2) join = new ArrayList<String>();
-            for (int index=0; index < join.size(); index++) {
+            if (join.size() < 2) join = new ArrayList<String>();
+            for (int index = 0; index < join.size(); index++) {
                 String line = join.get(index);
                 if (line.contains("#")) join.remove(index);
             }
         } catch (IOException e) {
             e.printStackTrace();
-        }finally{
-            if(join.isEmpty()) join.add("La phrase par défaut pour dire 'bonjour' :D");
+        } finally {
+            if (join.isEmpty()) join.add("La phrase par défaut pour dire 'bonjour' :D");
         }
         leave = new ArrayList<String>();
         try {
             leave = (ArrayList<String>) Files.readAllLines(leavePath, StandardCharsets.UTF_8);
-            if(leave.size() < 2) leave = new ArrayList<String>();
-            for (int index=0; index < leave.size(); index++) {
+            if (leave.size() < 2) leave = new ArrayList<String>();
+            for (int index = 0; index < leave.size(); index++) {
                 String line = leave.get(index);
                 if (line.contains("#")) leave.remove(index);
             }
@@ -63,8 +63,8 @@ public class RandomText {
         random = new ArrayList<String>();
         try {
             random = (ArrayList<String>) Files.readAllLines(ranPath, StandardCharsets.UTF_8);
-            if(random.size() < 2) random = new ArrayList<String>();
-            for (int index=0; index < random.size(); index++) {
+            if (random.size() < 2) random = new ArrayList<String>();
+            for (int index = 0; index < random.size(); index++) {
                 String line = random.get(index);
                 if (line.contains("#")) random.remove(index);
             }
@@ -123,14 +123,14 @@ public class RandomText {
         else return false;
     }
     
-    public static char getRandomChar(){
+    public static char getRandomChar() {
         Random ran = new Random();
         return (char) (65 + ran.nextInt(123));
     }
-
+    
     public static String getRandomString(int par) {
-        String s="";
-        for(int i=0; i < par; i++){
+        String s = "";
+        for (int i = 0; i < par; i++) {
             s += getRandomChar();
         }
         return s;

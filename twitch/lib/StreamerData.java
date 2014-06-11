@@ -2,7 +2,7 @@
 package twitch.lib;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
+import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -74,7 +74,6 @@ public abstract class StreamerData {
             e.printStackTrace();
         }
     }
-
     
     public HashMap<String, String> getCmds() {
         return cmdsBasics;
@@ -112,11 +111,11 @@ public abstract class StreamerData {
         cmdsSpecial = new ArrayList<String>();
         cmdsBasics = new HashMap<String, String>();
         try {
-            List<String> lines = Files.readAllLines(cmdsFile, StandardCharsets.UTF_8);
+            List<String> lines = Files.readAllLines(cmdsFile, Charset.defaultCharset());
             for (String line : lines) {
                 if (line.startsWith("#")) {
                     continue;
-                }else if (line.startsWith("!")) {
+                } else if (line.startsWith("!")) {
                     String[] array = line.split("=");
                     try {
                         if (!cmdsBasics.containsKey(array[0])) {
@@ -128,7 +127,7 @@ public abstract class StreamerData {
                     }
                 } else if (line.startsWith("@")) {
                     line = line.replace('@', '!');
-                    Main.log("nouvelle commande special : " + line);
+                    Main.log("nouvelle commande speciale : " + line);
                     cmdsSpecial.add(line.toLowerCase());
                 }
             }
@@ -146,7 +145,7 @@ public abstract class StreamerData {
     public boolean removeCommand(String cmd) {
         if (!cmdsBasics.containsKey("!" + cmd.toLowerCase())) return false;
         String s = "!" + cmd + "=" + cmdsBasics.get("!" + cmd);
-        return FileRWHelper.deleteString(cmdsFile, s,"#" +  this.channel);
+        return FileRWHelper.deleteString(cmdsFile, s, "#" + this.channel);
     }
     
     public String getCommandsList() {

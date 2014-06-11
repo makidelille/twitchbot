@@ -30,7 +30,7 @@ public class Bot extends PircBot {
     
     @Override
     protected void onMessage(String channel, String sender, String login, String hostname, String msg) {
-        if ((isPaused && stream.isUserOp(getStreamChannel(), sender)) || stream == null) return;
+        if ((isPaused && !stream.isUserOp(getStreamChannel(), sender)) || stream == null) return;
         if (msg.toLowerCase().contains("hodor") && !msg.startsWith("!") && !isPaused) {
             sendMessage(channel, "/me HODOR");
             return;
@@ -121,6 +121,7 @@ public class Bot extends PircBot {
     @Override
     protected void onDisconnect() {
         super.onDisconnect();
+        Main.stop();
     }
     
     @Override
@@ -245,8 +246,7 @@ public class Bot extends PircBot {
                     if (success) {
                         sendText(getStreamChannel(), "commande supprimée");
                         Main.load();
-                    }
-                    else sendText(getStreamChannel(), "Erreur dans la suppression de  la commande");
+                    } else sendText(getStreamChannel(), "Erreur dans la suppression de  la commande");
                 }
                 return true;
             }
@@ -257,17 +257,13 @@ public class Bot extends PircBot {
     public String getStreamChannel() {
         return stream.getName();
     }
-
-    private void quit(){
+    
+    private void quit() {
         Main.log("BOTS DISCONNECTING");
         rBot.disconnect();
         this.disconnect();
-
-        
         rBot.dispose();
         this.dispose();
-        
         Main.stop();
-       
     }
 }

@@ -59,18 +59,16 @@ public class Main {
             log("======================");
             stop();
         }
-        
         Bot bot = new Bot(MASTER, Boolean.valueOf(mode));
         bot.setVerbose(false);
-        try{
-            bot.connect("irc.twitch.tv", 6667, pass);            
-        }catch(ConnectException e) {
+        try {
+            bot.connect("irc.twitch.tv", 6667, pass);
+        } catch (ConnectException e) {
             log("connection error");
             log("stopping bots");
             bot.dispose();
             e.printStackTrace();
         }
-        
         bot.joinChannel(MASTERCHANNEL);
         log("RW BOT LOADED");
     }

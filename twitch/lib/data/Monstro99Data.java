@@ -21,15 +21,13 @@ public class Monstro99Data extends StreamerData {
     
     public void init() {
         cfg = new HashMap<String, String>();
-        cfg.put("CPU",
-                "I7 860+@4.2Ghz Corsair H50 + 2x Cooler Master Excalibur");
+        cfg.put("CPU", "I7 860+@4.2Ghz Corsair H50 + 2x Cooler Master Excalibur");
         cfg.put("RAM", "8Go Crucial Ballistix pc16000 (2000Mhz)");
         cfg.put("GPU", "MSI GTX 770 OC 2Go Gaming");
         cfg.put("HDD", "1x250 Go 16Mo / Raid0 2x750Go 32Mo");
         cfg.put("MB", "EVGA P55 FTW");
         cfg.put("SOUND CARD", "X-Fi sound blaster XG fatal1ty");
         cfg.put("PSU", "Corsair HX 850");
-        
         controls = new HashMap<String, String>();
         controls.put("MOUSE", "Logitech G500");
         controls.put("MOUSE PAD", "");
@@ -42,8 +40,7 @@ public class Monstro99Data extends StreamerData {
         String re;
         String key, value;
         if (this.cfg.containsKey(piece.toUpperCase())) {
-            re = piece.toUpperCase() + " : "
-                    + this.cfg.get(piece.toUpperCase());
+            re = piece.toUpperCase() + " : " + this.cfg.get(piece.toUpperCase());
         } else if (piece == "*") {
             re = "";
             Iterator<Entry<String, String>> it = this.cfg.entrySet().iterator();
@@ -62,12 +59,10 @@ public class Monstro99Data extends StreamerData {
     public String getControllers(String piece) {
         String re, key, value;
         if (this.controls.containsKey(piece.toUpperCase())) {
-            re = piece.toUpperCase() + " : "
-                    + this.controls.get(piece.toUpperCase());
+            re = piece.toUpperCase() + " : " + this.controls.get(piece.toUpperCase());
         } else if (piece == "*") {
             re = "";
-            Iterator<Entry<String, String>> it = this.controls.entrySet()
-                    .iterator();
+            Iterator<Entry<String, String>> it = this.controls.entrySet().iterator();
             while (it.hasNext()) {
                 Entry<String, String> entry = (Entry<String, String>) it.next();
                 key = entry.getKey();
@@ -106,9 +101,8 @@ public class Monstro99Data extends StreamerData {
                 return;
             case "!rage":
                 int par = Integer.valueOf(msgArray[1]);
-                bot.sendText(channel,sender + " : " + RandomText.getRandomString(par));
+                bot.sendText(channel, sender + " : " + RandomText.getRandomString(par));
                 return;
         }
     }
-
 }
