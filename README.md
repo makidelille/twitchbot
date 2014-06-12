@@ -54,8 +54,8 @@ Ecrit par makidelille http://twitter.com/makidelille.
 
 ## SYNTAXE MESSAGE
 
-* [@m] indique un message de type \me. A mettre au debut du message. 
-         * [BETA] ajouter une couleur à la fin de la commande pour changer la couleur
+* [@m] indique un message de type \me. A mettre au debut du message.  
+   * [BETA] ajouter une couleur à la fin de la commande pour changer la couleur
 * [@s] indique qu'il faut remplacer @s par le nom de celui qui a taper la commande.
 
 ## SCRIPT
