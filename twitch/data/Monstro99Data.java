@@ -1,13 +1,13 @@
 
-package twitch.lib.data;
+package twitch.data;
 
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map.Entry;
 
 import twitch.bots.Bot;
-import twitch.lib.RandomText;
-import twitch.lib.StreamerData;
+import twitch.util.RandomText;
+import twitch.util.StreamerData;
 
 
 public class Monstro99Data extends StreamerData {

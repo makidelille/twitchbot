@@ -38,10 +38,20 @@ public class RBot extends PircBot {
     }
     
     @Override
+    protected void onMessage(String channel, String sender, String login, String hostname, String message) {
+        if (path != null) FileRWHelper.writeEndStringWithDateInFile(path, sender + " : " + message);
+    }
+    
+    @Override
+    protected void onAction(String sender, String login, String hostname, String target, String action) {
+        if (path != null) FileRWHelper.writeEndStringWithDateInFile(path, sender + "/me " + action);
+    }
+    
+    @Override
     protected void onJoin(String channel, String sender, String login, String hostname) {
         super.onJoin(channel, sender, login, hostname);
         if (login.equalsIgnoreCase(this.getName())) {
-            this.channel = channel;
+            this.setChannel(channel);
             this.changePath();
             Main.log("R BOT READY");
         } else if (path != null) {
@@ -53,7 +63,7 @@ public class RBot extends PircBot {
     protected void onPart(String channel, String sender, String login, String hostname) {
         super.onPart(channel, sender, login, hostname);
         if (login.equalsIgnoreCase(this.getName())) {
-            this.channel = null;
+            this.setChannel(null);
             this.changePath();
         } else if (path != null) {
             FileRWHelper.writeEndStringWithDateInFile(path, login + " left");
@@ -61,15 +71,15 @@ public class RBot extends PircBot {
     }
     
     private void changePath() {
-        if (channel.isEmpty()) {
+        if (getChannel().isEmpty()) {
             path = null;
             return;
         }
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
         Date time = new Date();
         String dateFormater = format.format(time);
-        path = Paths.get(Main.APPDATA + "log/" + this.channel + "_" + dateFormater + ".txt");
-        Main.log("accesing file : " + path);
+        path = Paths.get(Main.APPDATA + "log/" + this.getChannel() + "_" + dateFormater + ".txt");
+        Main.log("Accesing file : " + path);
         if (!Files.exists(path)) try {
             File file = new File(path.toAbsolutePath().toString());
             file.createNewFile();
@@ -77,9 +87,18 @@ public class RBot extends PircBot {
             e1.printStackTrace();
         }
     }
-    
-    @Override
-    protected void onMessage(String channel, String sender, String login, String hostname, String message) {
-        if (path != null) FileRWHelper.writeEndStringWithDateInFile(path, sender + " : " + message);
+
+    /**
+     * @return the channel
+     */
+    public String getChannel() {
+        return channel;
+    }
+
+    /**
+     * @param channel the channel to set
+     */
+    public void setChannel(String channel) {
+        this.channel = channel.startsWith("#") ? channel : "#" + channel;
     }
 }

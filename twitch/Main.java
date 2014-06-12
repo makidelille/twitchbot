@@ -8,8 +8,9 @@ import java.util.Date;
 import java.util.Scanner;
 
 import twitch.bots.Bot;
-import twitch.lib.RandomText;
-import twitch.lib.StreamerData;
+import twitch.util.RandomText;
+import twitch.util.StreamerData;
+import twitch.util.TwitchColor;
 
 
 public class Main {
@@ -20,6 +21,7 @@ public class Main {
     public static long         startTime;
     public static final String MASTER        = "makidelille";
     public static final String MASTERCHANNEL = "#" + MASTER;
+    public static final TwitchColor defColor = TwitchColor.BLUE;
     
     public static void main(String[] args) throws Exception {
         startTime = System.nanoTime();

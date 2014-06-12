@@ -1,5 +1,5 @@
 
-package twitch.lib.data;
+package twitch.data;
 
 import java.text.DateFormat;
 import java.util.Date;
@@ -10,8 +10,8 @@ import java.util.Random;
 
 import twitch.Main;
 import twitch.bots.Bot;
-import twitch.lib.RandomText;
-import twitch.lib.StreamerData;
+import twitch.util.RandomText;
+import twitch.util.StreamerData;
 
 
 public class ComData extends StreamerData {

@@ -1,5 +1,5 @@
 
-package twitch.lib;
+package twitch.util;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -12,10 +12,9 @@ import java.util.List;
 
 import twitch.Main;
 import twitch.bots.Bot;
-import twitch.lib.data.ComData;
-import twitch.lib.data.MakidelilleData;
-import twitch.lib.data.Monstro99Data;
-import twitch.util.FileRWHelper;
+import twitch.data.ComData;
+import twitch.data.MakidelilleData;
+import twitch.data.Monstro99Data;
 
 
 public abstract class StreamerData {
@@ -84,14 +83,19 @@ public abstract class StreamerData {
     }
     
     public void onCmd(Bot bot, String sender, String msg) {
-        String cmd = msg.split(" ")[0];
+        String[] msgArray = msg.split(" ");
+        String cmd = msgArray[0];
         if (this.isChannelSpecialCmd(cmd)) {
             onSpecialCmd(bot, sender, msg);
             return;
         } else {
             String display = cmdsBasics.get(cmd);
             if (display.startsWith("[@m]")) {
-                bot.sendMeText(bot.getStreamChannel(), display, sender);
+                try{
+                    bot.sendMeText(bot.getStreamChannel(), display, sender, TwitchColor.getTwitchColor(msgArray[1]));
+                }catch(IndexOutOfBoundsException e){
+                    bot.sendMeText(bot.getStreamChannel(), display, sender);
+                }
             } else {
                 bot.sendText(bot.getStreamChannel(), display, sender);
             }

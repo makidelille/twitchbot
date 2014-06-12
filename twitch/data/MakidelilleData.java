@@ -1,10 +1,10 @@
 
-package twitch.lib.data;
+package twitch.data;
 
 import java.util.HashMap;
 
 import twitch.bots.Bot;
-import twitch.lib.StreamerData;
+import twitch.util.StreamerData;
 
 
 public class MakidelilleData extends StreamerData {

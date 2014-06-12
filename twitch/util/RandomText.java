@@ -1,5 +1,5 @@
 
-package twitch.lib;
+package twitch.util;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -10,7 +10,6 @@ import java.util.ArrayList;
 import java.util.Random;
 
 import twitch.Main;
-import twitch.util.FileRWHelper;
 
 
 public class RandomText {
@@ -146,5 +145,15 @@ public class RandomText {
             s += getRandomChar();
         }
         return s;
+    }
+
+    public static TwitchColor getRandomColor() {
+        TwitchColor[] colors = TwitchColor.values();
+        try{
+            return colors[new Random().nextInt(colors.length)];
+        }catch(IndexOutOfBoundsException e){
+            e.printStackTrace();
+            return Main.defColor;
+        }
     }
 }
