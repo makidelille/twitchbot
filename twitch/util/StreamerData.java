@@ -15,6 +15,8 @@ import twitch.bots.Bot;
 import twitch.data.ComData;
 import twitch.data.MakidelilleData;
 import twitch.data.Monstro99Data;
+import twitch.scripts.HodorScript;
+import twitch.scripts.XdScript;
 
 
 public abstract class StreamerData {
@@ -25,6 +27,8 @@ public abstract class StreamerData {
     private HashMap<String, String>             cmdsBasics;
     private ArrayList<String>                   cmdsSpecial;
     public ArrayList<String>                    modo;
+    private ArrayList<Script> channelScripts;
+    
     
     public abstract void init();
     
@@ -35,18 +39,29 @@ public abstract class StreamerData {
     public static StreamerData  common;
     
     public static void load() {
+        //reset the streamer map
         map = new HashMap<String, StreamerData>();
+        
+        //instance the data
         monstro99 = new Monstro99Data();
         makidelille = new MakidelilleData();
         common = new ComData();
+        
+        //init the data
         monstro99.init();
         makidelille.init();
         common.init();
+        
+        //start the scripts
+        new HodorScript();
+        new XdScript();
+        
+        
     }
     
     public static StreamerData getStreamerData(String channel) {
         if (channel.startsWith("#")) channel = channel.substring(1);
-        return map.containsKey(channel) ? map.get(channel) : null;
+        return map.containsKey(channel.toLowerCase()) ? map.get(channel.toLowerCase()) : null;
     }
     
     public boolean isUserOp(String channel, String userToCompare) {
@@ -58,8 +73,9 @@ public abstract class StreamerData {
     }
     
     public StreamerData(String channel) {
-        map.put(channel, this);
+        map.put(channel.toLowerCase(), this);
         this.modo = new ArrayList<String>();
+        this.channelScripts = new ArrayList<Script>();
         this.channel = channel;
         try {
             cmdsFile = Paths.get(Main.APPDATA + channel + ".txt");
@@ -163,5 +179,13 @@ public abstract class StreamerData {
     
     public String getName() {
         return this.channel;
+    }
+
+    public void addScript(Script script) {
+        if(!channelScripts.contains(script))channelScripts.add(script);
+    }
+    
+    public ArrayList<Script> getScripts(){
+        return channelScripts;
     }
 }

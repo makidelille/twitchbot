@@ -2,11 +2,13 @@
 package twitch.bots;
 
 import java.util.HashMap;
+import java.util.Random;
 
 import org.jibble.pircbot.PircBot;
 
 import twitch.Main;
 import twitch.util.RandomText;
+import twitch.util.Script;
 import twitch.util.StreamerData;
 import twitch.util.TwitchColor;
 
@@ -39,19 +41,22 @@ public class Bot extends PircBot {
         this.onMessage(target, sender, login, hostname, action);
     }
     
+    
+   
     @Override
     protected void onMessage(String channel, String sender, String login, String hostname, String msg) {
         long cmdtime = System.nanoTime();
         int difS = (int) ((cmdtime - lastCmdtime) / Math.pow(10, 9));
         if ((isPaused && !stream.isUserOp(channel, sender)) || stream == null) return;
-        if (msg.toLowerCase().contains("hodor") && !msg.startsWith("!") && !isPaused) {
-            sendMeText(channel, "HODOR" , RandomText.getRandomColor());
-            return;
+        if(!isPaused){
+            for(Script script : stream.getScripts()){
+                if(script.execute(this, channel, sender, msg)) return;
+            }
+            for(Script script : StreamerData.common.getScripts()){
+                if(script.execute(this, channel, sender, msg)) return;
+            }
         }
-        if (msg.contains("Xd") && !sender.equalsIgnoreCase("makidelille")) {
-            sendText(channel, "Toi aussi, tu sais pas les faire Xd");
-            return;
-        }
+
         if (!stream.isUserOp(channel, sender) && (difS < spamDelay && antiSpam)) return;
         lastCmdtime = cmdtime;
         String[] msgArray = msg.split(" ");
@@ -122,7 +127,7 @@ public class Bot extends PircBot {
                     this.alwaysAnswer = false;
                     sendMeText(channel, "je repondrai qu'aux bons :P", TwitchColor.CHOCOLATE);
                     return;
-                case "!spam":
+                case "!botspam":
                     if (singleCmd) {
                         antiSpam = true;
                         sendMeText(channel, "AntiSpam actif avec pour délai : " + spamDelay + "s" , TwitchColor.RED);
@@ -151,13 +156,7 @@ public class Bot extends PircBot {
                         sendText(channel, "[@s] : erreur dans les arguments, y a pas de débat possible :o", sender);
                     }
                     return;
-                case "!rainbow" :
-                    try{
-                        this.sendRainbow(channel, TwitchColor.getTwitchColor(msgArray[1]));
-                    }catch(IndexOutOfBoundsException e){
-                        this.sendRainbow(channel,Main.defColor);
-                    }
-                    return;
+                
             }
         }
         if (!handleChannelMsg(channel, sender, msg)) {
@@ -191,6 +190,8 @@ public class Bot extends PircBot {
             stream = StreamerData.getStreamerData(channel);
         } else if (login.equalsIgnoreCase("FSG_SoWEeZ") || login.equalsIgnoreCase("schizolefrene") || login.equalsIgnoreCase("bubucho")) {
             sendText(channel, RandomText.getRanJoin(), login);
+        } else if(new Random().nextFloat() > 0.8f){
+            sendText(channel, RandomText.getRanJoin(), login);
         }
     }
     
@@ -203,6 +204,8 @@ public class Bot extends PircBot {
             if (!silentMode) sendText(channel, RandomText.getRanLeave(), "");
             stream = StreamerData.getStreamerData(channel);
         } else if (login.equalsIgnoreCase("FSG_SoWEeZ") || login.equalsIgnoreCase("schizolefrene") || login.equalsIgnoreCase("bubucho")) {
+            sendText(channel, RandomText.getRanLeave(), login);
+        } else if(new Random().nextFloat() > 0.8f){
             sendText(channel, RandomText.getRanLeave(), login);
         }
     }

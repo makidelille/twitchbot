@@ -37,15 +37,14 @@ public enum TwitchColor {
     
     
     public static TwitchColor getTwitchColor(String color){
+        for(TwitchColor tcolor : TwitchColor.values())
+            if(tcolor.getColorCode().equalsIgnoreCase(color)) return tcolor;
+        
         switch(color.toLowerCase()){
-            case "blue" : return BLUE;
             case "bleu" : return BLUE;
-            case "lightblue" : return LIGHTBLUE;
             case "light blue" :return LIGHTBLUE;
             case "bleuclair" : return LIGHTBLUE;
             case "bleu clair" : return LIGHTBLUE;
-            case "darkblue" : return DARKBLUE;
-            case "purple" : return PURPLE;
             case "violet" : return PURPLE;
             case "darkpink" : return DARKPINK;
             

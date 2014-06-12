@@ -12,6 +12,7 @@ import twitch.Main;
 import twitch.bots.Bot;
 import twitch.util.RandomText;
 import twitch.util.StreamerData;
+import twitch.util.TwitchColor;
 
 
 public class ComData extends StreamerData {
@@ -190,6 +191,20 @@ public class ComData extends StreamerData {
                     else modos += "Aucun :(";
                     bot.sendText(bot.getStreamChannel(), op);
                     bot.sendText(bot.getStreamChannel(), modos);
+                    return;
+                case "!rainbow" :
+                    try{
+                        bot.sendRainbow(channel, TwitchColor.getTwitchColor(msgArray[1]));
+                    }catch(IndexOutOfBoundsException e){
+                        bot.sendRainbow(channel,Main.defColor);
+                    }
+                    return;
+                case "!canceltimeout" :
+                    try{
+                        bot.sendMessage(channel, "/timeout " + msgArray[1] + "0");
+                    }catch(IndexOutOfBoundsException e){
+                        bot.sendText(channel, "[@s] :  manque un nom FailFish ", sender);
+                    }
                     return;
             }
         }
