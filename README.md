@@ -36,6 +36,8 @@ Ecrit par makidelille http://twitter.com/makidelille.
 * !spam [on || off || set] [temps] active/desactive l'antispam avec [temps]s entre chaque reponse du bot
 * !cmdlist affiche la liste des commandes disponibles.
 * !oplist affiche la liste des Ops disponibles.
+* !canceltimeout [par] annule le timeout de [par]
+
 
 ## COMMANDE COMMUNE
 
@@ -52,8 +54,9 @@ Ecrit par makidelille http://twitter.com/makidelille.
 
 ## SYNTAXE MESSAGE
 
-* @m indique un message de type \me. A mettre au debut du message.
-* @s indique qu'il faut remplacer @s par le nom de celui qui a taper la commande.
+* [@m] indique un message de type \me. A mettre au debut du message. 
+         * [BETA] ajouter une couleur à la fin de la commande pour changer la couleur
+* [@s] indique qu'il faut remplacer @s par le nom de celui qui a taper la commande.
 
 ## SCRIPT
 
