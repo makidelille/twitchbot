@@ -1,7 +1,8 @@
 
-package twitch.data;
+package twitch.data.streamData;
 
 import java.text.DateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
@@ -12,7 +13,6 @@ import java.util.Random;
 import twitch.Main;
 import twitch.bots.Bot;
 import twitch.util.RandomText;
-import twitch.util.StreamerData;
 import twitch.util.TwitchColor;
 
 
@@ -161,7 +161,7 @@ public class ComData extends StreamerData {
                         else non++;
                     }
                     bot.sendText(bot.getStreamChannel(), "Le chat a votÃ© " + (oui > non ? "OUI a " + 100 * (oui / (oui + non)) + "%" : "NON a " + 100 * (non / (oui + non)) + "%") + " pour le cas de " + selected, sender);
-                    if (oui > non) bot.timeout(sender, toTime);
+                    if (oui > non) bot.sendTimeout(sender, toTime);
                     selected = null;
                     votebanInprogress = false;
                     return;
@@ -188,13 +188,20 @@ public class ComData extends StreamerData {
                     Main.load();
                     return;
                 case "!oplist":
-                    String op = "Maitre du Bot : " + Main.MASTER;
+                    String masters = "Maitre du Bot : ";
+                    ArrayList<String> master = getUsers().getMasterUsers();
+                    if (!master.isEmpty()) for (String line : master) {
+                        masters += line + " | ";
+                    }
+                    else masters += "Aucun :(";
                     String modos = "Modo(s) du bot detectÃ©(s) : ";
-                    if (!this.modo.isEmpty()) for (String line : this.modo) {
+                    ArrayList<String> modo = getUsers().getOpUsers();
+                    if (!modo.isEmpty()) for (String line : modo) {
                         modos += line + " | ";
                     }
                     else modos += "Aucun :(";
-                    bot.sendText(bot.getStreamChannel(), op, sender);
+                    
+                    bot.sendText(bot.getStreamChannel(), masters, sender);
                     bot.sendText(bot.getStreamChannel(), modos, sender);
                     return;
                 case "!rainbow" :
@@ -206,7 +213,7 @@ public class ComData extends StreamerData {
                     return;
                 case "!canceltimeout" :
                     try{
-                        bot.timeout(sender,0);
+                        bot.cancelTimeout(msgArray[1]);
                     }catch(IndexOutOfBoundsException e){
                         bot.sendText(bot.getStreamChannel(), "[@s] :  manque un nom FailFish ", sender);
                     }
@@ -226,8 +233,5 @@ public class ComData extends StreamerData {
 
 
     @Override
-    protected void generateSubCmds() {
-        // TODO Auto-generated method stub
-        
-    }
+    protected void generateSubCmds() {}
 }

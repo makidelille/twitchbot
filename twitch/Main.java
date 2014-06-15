@@ -8,8 +8,9 @@ import java.util.Date;
 import java.util.Scanner;
 
 import twitch.bots.Bot;
+import twitch.data.streamData.StreamerData;
+import twitch.scripts.Script;
 import twitch.util.RandomText;
-import twitch.util.StreamerData;
 import twitch.util.TwitchColor;
 
 
@@ -61,7 +62,7 @@ public class Main {
             stop();
         }
         Bot bot = new Bot(MASTER, Boolean.valueOf(mode));
-        bot.setVerbose(true);
+        bot.setVerbose(false);
         try {
             bot.connect("irc.twitch.tv", 6667, pass);
         } catch (ConnectException e) {
@@ -69,6 +70,7 @@ public class Main {
             log("stopping bots");
             bot.dispose();
             e.printStackTrace();
+            stop();
         }
         bot.joinChannel(MASTERCHANNEL);
         log("RW BOT LOADED");
@@ -101,9 +103,9 @@ public class Main {
     }
     
     public static void load() {
-        //TODO add Api 
-        //TODO load the data after login in channel
+        //TODO add Api
         StreamerData.load();
+        Script.load();
         RandomText.load();
     }
 }

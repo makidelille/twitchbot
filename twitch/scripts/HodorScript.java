@@ -1,15 +1,14 @@
 package twitch.scripts;
 
 import twitch.bots.Bot;
+import twitch.data.streamData.StreamerData;
 import twitch.util.RandomText;
-import twitch.util.Script;
-import twitch.util.StreamerData;
 
 
 public class HodorScript extends Script{
 
-    public HodorScript() {
-        super(StreamerData.map.get("monstro99"));
+    public HodorScript(StreamerData stream) {
+        super(stream);
     }
 
     @Override

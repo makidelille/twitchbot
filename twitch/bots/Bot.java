@@ -1,21 +1,21 @@
 
 package twitch.bots;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 
 import org.jibble.pircbot.PircBot;
 
 import twitch.Main;
+import twitch.data.streamData.StreamerData;
+import twitch.data.userData.TimeoutMap;
+import twitch.scripts.Script;
 import twitch.util.RandomText;
-import twitch.util.Script;
-import twitch.util.StreamerData;
 import twitch.util.TwitchColor;
 
 
 public class Bot extends PircBot {
     
-    private static int        spamDelay    = 60;
+    private int               spamDelay    = 60;
     public boolean            isPaused     = false;
     public boolean            forceQuit    = false;
     private boolean           debugMode    = false;
@@ -24,11 +24,8 @@ public class Bot extends PircBot {
     private boolean           alwaysAnswer = true;
     private boolean           hello        = true;
     private long              lastCmdtime;
-    private int defTimeouttime = 300;
     private RBot              rBot;
     private StreamerData      stream;
-    private ArrayList<String> userWithMaster;
-    private ArrayList<String> usersHello;
     
     public Bot(String name, boolean silentMode) {
         this.setName(name);
@@ -49,11 +46,6 @@ public class Bot extends PircBot {
     protected void onMessage(String channel, String sender, String login, String hostname, String msg) {
         long cmdtime = System.nanoTime();
         int difS = (int) ((cmdtime - lastCmdtime) / Math.pow(10, 9));
-        // hello script
-        if (usersHello.contains(sender.toLowerCase())) {
-            sendText(channel, RandomText.getRanJoin(), sender);
-            usersHello.remove(sender.toLowerCase());
-        }
         // check the scripts
         if (!isPaused) {
             for (Script script : stream.getScripts()) {
@@ -77,14 +69,14 @@ public class Bot extends PircBot {
                     sendMeText(channel, "pong", sender);
                     return;
                 case "!leave":
-                    if (userWithMaster.contains(sender.toLowerCase())) {
+                    if (stream.isUserMaster(sender)) {
                         sendMeText(channel, "Bot leaving and returning home ...", sender);
                         this.partChannel(channel);
                         this.joinChannel(Main.MASTERCHANNEL);
                     }
                     return;
                 case "!join":
-                    if (!singleCmd && (userWithMaster.contains(sender.toLowerCase()))) {
+                    if (!singleCmd && (stream.isUserMaster(sender))) {
                         sendMeText(channel, "Joining " + msgArray[1], sender);
                         try {
                             silentMode = !Boolean.valueOf(msgArray[2]);
@@ -95,18 +87,19 @@ public class Bot extends PircBot {
                     }
                     return;
                 case "!quit":
-                    if (userWithMaster.contains(sender.toLowerCase())) {
+                    if (stream.isUserMaster(sender)) {
+                        this.sendMeText(getStreamChannel(), "BOT STOPPING", "");
                         quit();
                     }
                     return;
                 case "!pause":
                     if (isPaused) sendMeText(channel, "[@s] --> FailFish", sender, TwitchColor.ORANGE);
-                    else sendMeText(channel, "Bot en pause", sender,TwitchColor.RED);
+                    else sendMeText(channel, "Bot en pause", sender, TwitchColor.RED);
                     this.isPaused = true;
                     return;
                 case "!resume":
-                    if (isPaused) sendMeText(channel, "Bot actif", sender,TwitchColor.GREEN);
-                    else sendMeText(channel, "Bot deja actif",sender, TwitchColor.GREEN);
+                    if (isPaused) sendMeText(channel, "Bot actif", sender, TwitchColor.GREEN);
+                    else sendMeText(channel, "Bot deja actif", sender, TwitchColor.GREEN);
                     this.isPaused = false;
                     return;
                 case "!reload":
@@ -130,7 +123,7 @@ public class Bot extends PircBot {
                     }
                     return;
                 case "!debug":
-                    if (userWithMaster.contains(sender.toLowerCase())) {
+                    if (stream.isUserMaster(sender)) {
                         debugMode = !debugMode;
                         sendMeText(channel, "Debug Mode : " + (debugMode ? "On" : "Off"), sender, TwitchColor.RED);
                         this.setVerbose(debugMode);
@@ -186,11 +179,12 @@ public class Bot extends PircBot {
                     }
                     return;
                 case "!addmaster":
-                    if (userWithMaster.contains(sender.toLowerCase())) {
+                    if (stream.isUserMaster(sender)) {
                         try {
-                            userWithMaster.add(msgArray[1].toLowerCase());
+                            stream.getUsers().addMaster(msgArray[1].toLowerCase());
                             sendText(channel, "[@s] est maintenant un master", msgArray[1]);
-                        } catch (IndexOutOfBoundsException e) {}
+                        } catch (IndexOutOfBoundsException e) {
+                        }
                     }
                     return;
             }
@@ -224,23 +218,18 @@ public class Bot extends PircBot {
             if (rBot != null) rBot.joinChannel(channel);
             if (!silentMode) sendText(channel, RandomText.getRanJoin(), "");
             stream = StreamerData.getStreamerData(channel);
-            userWithMaster = new ArrayList<String>();
-            usersHello = new ArrayList<String>();
-            userWithMaster.add("makidelille");
-            userWithMaster.add(stream.getName().toLowerCase());
+            new TimeoutMap(this.getStreamChannel());
         }
-        if (!usersHello.contains(sender.toLowerCase()) && hello) usersHello.add(sender.toLowerCase());
     }
     
     @Override
     protected void onPart(String channel, String sender, String login, String hostname) {
         super.onPart(channel, sender, login, hostname);
         if (login.equalsIgnoreCase(this.getName())) {
-            if(rBot != null) rBot.partChannel(channel);
+            if (rBot != null) rBot.partChannel(channel);
             if (!silentMode) sendText(channel, RandomText.getRanLeave(), "");
             stream = null;
         }
-        if (usersHello.contains(sender.toLowerCase())) usersHello.remove(sender.toLowerCase());
     }
     
     @Override
@@ -249,9 +238,20 @@ public class Bot extends PircBot {
         if (mode.contains("+o")) {
             try {
                 String modo = mode.split(" ")[2];
-                if (!stream.modo.contains(modo)) {
+                if (!stream.getUsers().getOpUsers().contains(modo)) {
                     Main.log(modo + " a été ajouter à la liste des modos du stream de " + stream.getName());
-                    stream.modo.add(modo);
+                    stream.getUsers().addOp(modo);
+                }
+            } catch (IndexOutOfBoundsException e) {
+                e.printStackTrace();
+                return;
+            }
+        }else if (mode.contains("-o")) {
+            try {
+                String modo = mode.split(" ")[2];
+                if (stream.getUsers().getOpUsers().contains(modo)) {
+                    Main.log(modo + " a été supprimer de la liste des modos du stream de " + stream.getName());
+                    stream.getUsers().removeOp(modo);
                 }
             } catch (IndexOutOfBoundsException e) {
                 e.printStackTrace();
@@ -261,21 +261,21 @@ public class Bot extends PircBot {
     }
     
     public void sendText(String channel, String msg, String sender) {
+        if (msg == "") {
+            Main.log(channel + " : message was not send because it's empty");
+            return;
+        }
         if (!channel.startsWith("#")) channel = "#" + channel;
         String newMsg = msg.replace("[@s]", sender);
         this.sendMessage(channel, "[Bot] " + newMsg);
         if (!stream.isUserOp(sender)) this.lastCmdtime = System.nanoTime();
     }
     
-//    public void sendMeText(String channel, String msg) {
-//        this.sendMeText(channel, msg, "", Main.defColor);
-//    }
-//    
-//    public void sendMeText(String channel, String msg, TwitchColor color) {
-//        this.sendMeText(channel, msg, "", color);
-//    }
-    
     public void sendMeText(String channel, String msg, String sender, TwitchColor color) {
+        if (msg == "") {
+            Main.log(channel + " : message was not send because it's empty");
+            return;
+        }
         if (!channel.startsWith("#")) channel = "#" + channel;
         if (msg.startsWith("[@m]")) msg = msg.substring(4);
         String newMsg = msg.replace("[@s]", sender);
@@ -382,11 +382,12 @@ public class Bot extends PircBot {
     }
     
     private void quit() {
-        this.sendMeText(getStreamChannel(), "BOT STOPPING", "");
         Main.log("BOTS DISCONNECTING");
-        rBot.disconnect();
+        if(rBot != null) {
+            rBot.disconnect();
+            rBot.dispose();
+        }
         this.disconnect();
-        rBot.dispose();
         this.dispose();
         Main.stop();
     }
@@ -394,13 +395,20 @@ public class Bot extends PircBot {
     public StreamerData getStream() {
         return this.stream;
     }
-
-    public void timeout(String sender){
-        this.timeout(sender,defTimeouttime);
+    
+    public void timeout(String sender) {
+        TimeoutMap map = TimeoutMap.streamMap.get(getStreamChannel());
+        map.applyTimeout(this, getStreamChannel(), sender);
     }
     
-    public void timeout(String sender,int time) {
-        sendMessage(getStreamChannel(), "/timeout " + sender+" " + time);
-        Main.log("timeout de "+sender+" pour "+time +"s");
+    public void sendTimeout(String sender, int time) {
+        sendMessage(getStreamChannel(), "/timeout " + sender + " " + time);
+        Main.log("timeout de " + sender + " pour " + time + "s");
+    }
+
+    public void cancelTimeout(String sender) {
+       sendMessage(getStreamChannel(), "/timeout " + sender + " " + -1);
+       Main.log("annulation du timeout de " + sender);
+        
     }
 }

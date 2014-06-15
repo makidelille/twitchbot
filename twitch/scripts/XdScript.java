@@ -1,14 +1,13 @@
 package twitch.scripts;
 
 import twitch.bots.Bot;
-import twitch.util.Script;
-import twitch.util.StreamerData;
+import twitch.data.streamData.StreamerData;
 
 
 public class XdScript extends Script {
     
-    public XdScript() {
-        super(StreamerData.common);
+    public XdScript(StreamerData stream) {
+        super(stream);
     }
 
     @Override

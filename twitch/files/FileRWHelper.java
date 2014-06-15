@@ -1,5 +1,5 @@
 
-package twitch.util;
+package twitch.files;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -69,4 +69,7 @@ public class FileRWHelper {
             return false;
         }
     }
+    
+    
+    
 }

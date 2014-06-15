@@ -1,5 +1,5 @@
 
-package twitch.data;
+package twitch.data.streamData;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -7,7 +7,6 @@ import java.util.Map.Entry;
 
 import twitch.bots.Bot;
 import twitch.util.RandomText;
-import twitch.util.StreamerData;
 
 
 public class Monstro99Data extends StreamerData {

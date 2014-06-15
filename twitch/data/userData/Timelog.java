@@ -1,4 +1,4 @@
-package twitch.util;
+package twitch.data.userData;
 
 import java.util.ArrayList;
 
@@ -15,7 +15,7 @@ public class Timelog {
         return timelastmsg.get(timelastmsg.size()-1);
     }
     
-    public float getAverageMessageSpeedOnMinute() { //TODO start from the end
+    public float getAverageMessageSpeedOnMinute() {//TODO redo it
         int size = timelastmsg.size();
         long sum=0;
         long time=0;

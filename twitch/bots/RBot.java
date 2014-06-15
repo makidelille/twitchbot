@@ -13,7 +13,7 @@ import org.jibble.pircbot.IrcException;
 import org.jibble.pircbot.PircBot;
 
 import twitch.Main;
-import twitch.util.FileRWHelper;
+import twitch.files.FileRWHelper;
 
 
 public class RBot extends PircBot {

@@ -3,9 +3,8 @@ package twitch.scripts;
 import java.util.HashMap;
 
 import twitch.bots.Bot;
-import twitch.util.Script;
-import twitch.util.StreamerData;
-import twitch.util.Timelog;
+import twitch.data.streamData.StreamerData;
+import twitch.data.userData.Timelog;
 
 
 public class SpamScript extends Script{
@@ -33,6 +32,8 @@ public class SpamScript extends Script{
             bot.timeout(sender);
             return true;
         }
+        
+        
         return false;
     }
     

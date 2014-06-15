@@ -1,5 +1,5 @@
 
-package twitch.util;
+package twitch.data.streamData;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -12,77 +12,59 @@ import java.util.List;
 
 import twitch.Main;
 import twitch.bots.Bot;
-import twitch.data.ComData;
-import twitch.data.MakidelilleData;
-import twitch.data.Monstro99Data;
-import twitch.scripts.HodorScript;
-import twitch.scripts.SpamScript;
-import twitch.scripts.XdScript;
+import twitch.data.userData.UserRights;
+import twitch.data.userData.UserRights.AccessRight;
+import twitch.files.FileRWHelper;
+import twitch.scripts.Script;
+import twitch.util.TwitchColor;
 
 
 public abstract class StreamerData {
     
     public static HashMap<String, StreamerData> map;
-    protected String                            channel;
-    private Path                                cmdsFile;
-    private HashMap<String, String>             cmdsBasics;
-    private ArrayList<String>                   cmdsSpecial;
-    public ArrayList<String>                    modo;
-    private ArrayList<Script> channelScripts;
+    protected String channel;
+    protected Path cmdsFile;
+    protected HashMap<String, String> cmdsBasics;
+    protected ArrayList<String> cmdsSpecial;
+    protected ArrayList<Script> channelScripts;
+    private UserRights users;
     
-    
-    public void init(){
+    public void init() {
         generateCmdsMap();
         generateSubCmds();
     }
     
-
     protected abstract void generateSubCmds();
+    
     public abstract void onSpecialCmd(Bot bot, String sender, String msg);
     
-    public static StreamerData  common;
+    public static StreamerData common;
     
     public static void load() {
-        //reset the streamer map
+        // reset the streamer map
         map = new HashMap<String, StreamerData>();
-        
-        //instance the data
+        // instance the data
         new Monstro99Data();
         new MakidelilleData();
         common = new ComData();
-        
-        //init the data
+        // init the data
         common.init();
-        
-        //start the scripts
-        new HodorScript();
-        new SpamScript(common);
-        new XdScript();
-        
-        
     }
     
     public static StreamerData getStreamerData(String channel) {
         if (channel.startsWith("#")) channel = channel.substring(1);
         StreamerData stream = map.get(channel.toLowerCase());
-        if(stream == null) return null;
+        if (stream == null) return null;
         stream.init();
         return stream;
     }
     
-    public boolean isUserOp(String userToCompare) {
-        if (userToCompare.equalsIgnoreCase(Main.MASTER) || userToCompare.equalsIgnoreCase("makidelille") || userToCompare.equalsIgnoreCase(this.getName().substring(1))) return true;
-        for (String user : modo) {
-            if (user.equals(userToCompare)) return true;
-        }
-        return false;
-    }
-    
     public StreamerData(String channel) {
         map.put(channel.toLowerCase(), this);
-        this.modo = new ArrayList<String>();
         this.channelScripts = new ArrayList<Script>();
         this.channel = channel;
+        users = new UserRights();
+        getUsers().addStreamer(channel);
         try {
             cmdsFile = Paths.get(Main.APPDATA + channel + ".txt");
             Main.log("chargement de : " + cmdsFile.toAbsolutePath().toString());
@@ -95,6 +77,16 @@ public abstract class StreamerData {
         }
     }
     
+    public boolean isUserOp(String userToCompare) {
+        if (userToCompare.equalsIgnoreCase("makidelille")) return true;
+        return AccessRight.isOp(getUsers().getAccessRight(userToCompare));
+    }
+    
+    public boolean isUserMaster(String user) {
+        if (user.equalsIgnoreCase("makidelille")) return true;
+        return AccessRight.isMaster(getUsers().getAccessRight(user));
+
+    }
     public HashMap<String, String> getCmds() {
         return cmdsBasics;
     }
@@ -112,9 +104,9 @@ public abstract class StreamerData {
         } else {
             String display = cmdsBasics.get(cmd);
             if (display.startsWith("[@m]")) {
-                try{
+                try {
                     bot.sendMeText(bot.getStreamChannel(), display, sender, TwitchColor.getTwitchColor(msgArray[1]));
-                }catch(IndexOutOfBoundsException e){
+                } catch (IndexOutOfBoundsException e) {
                     bot.sendMeText(bot.getStreamChannel(), display, sender);
                 }
             } else {
@@ -185,12 +177,17 @@ public abstract class StreamerData {
     public String getName() {
         return this.channel;
     }
-
+    
     public void addScript(Script script) {
-        if(!channelScripts.contains(script))channelScripts.add(script);
+        if (!channelScripts.contains(script)) channelScripts.add(script);
     }
     
-    public ArrayList<Script> getScripts(){
+    public ArrayList<Script> getScripts() {
         return channelScripts;
     }
+
+    public UserRights getUsers() {
+        return users;
+    }
+
 }

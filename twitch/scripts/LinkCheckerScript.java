@@ -1,8 +1,7 @@
 package twitch.scripts;
 
 import twitch.bots.Bot;
-import twitch.util.Script;
-import twitch.util.StreamerData;
+import twitch.data.streamData.StreamerData;
 
 
 public class LinkCheckerScript extends Script{
@@ -32,7 +31,7 @@ public class LinkCheckerScript extends Script{
     
     private boolean isTLD(String text) {
         String[] array = text.split(".");
-        String prevLine="";
+ //       String prevLine="";
         for(String line : array) {
             //TODO the hardest part ^^
             
@@ -48,13 +47,14 @@ public class LinkCheckerScript extends Script{
                     }
                 }
 
-            //check si utilise en mots ou en lien i need space --'
+            //check si utilise en mots ou en lien 
+            //i need spaces --'
             if(flag) {
                 
             }
             
 
-            prevLine = line;
+ //           prevLine = line;
         }
         
         return false;
