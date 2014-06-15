@@ -19,7 +19,8 @@ public class Monstro99Data extends StreamerData {
         super("monstro99");
     }
     
-    public void init() {
+    @Override
+    protected void generateSubCmds() {
         cfg = new HashMap<String, String>();
         cfg.put("CPU", "I7 860+@4.2Ghz Corsair H50 + 2x Cooler Master Excalibur");
         cfg.put("RAM", "8Go Crucial Ballistix pc16000 (2000Mhz)");
@@ -101,7 +102,7 @@ public class Monstro99Data extends StreamerData {
                 return;
             case "!rage":
                 int par = Integer.valueOf(msgArray[1]);
-                bot.sendText(channel, sender + " : " + RandomText.getRandomString(par));
+                bot.sendText(channel, sender + " : " + RandomText.getRandomString(par), sender);
                 return;
         }
     }

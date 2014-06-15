@@ -2,6 +2,7 @@
 package twitch.data;
 
 import java.text.DateFormat;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -25,10 +26,7 @@ public class ComData extends StreamerData {
     public ComData() {
         super("twitch");
     }
-    
-    @Override
-    public void init() {
-    }
+  
     
     @Override
     public void onSpecialCmd(Bot bot, String sender, String msg) {
@@ -39,23 +37,30 @@ public class ComData extends StreamerData {
             case "!time":
                 Date time = new Date();
                 String date = DateFormat.getInstance().format(time);
-                bot.sendText(bot.getStreamChannel(), "Local time : " + date);
+                bot.sendText(bot.getStreamChannel(), "Local time : " + date, sender);
                 return;
             case "!lien":
                 if (singleCmd) { return; }
                 String querry = msg.substring(cmd.length() + 1).replace(" ", "+");
-                bot.sendText(bot.getStreamChannel(), "lmgtfy.com/?q=" + querry);
+                bot.sendText(bot.getStreamChannel(), "lmgtfy.com/?q=" + querry, sender);
+                return;
+            case "!multi":
+                String text = "multitwitch.tv/" + bot.getStream().getName() +"/";
+                for(String arg : Arrays.copyOfRange(msgArray, 1, msgArray.length)){
+                    text += arg +"/";
+                }
+                bot.sendText(bot.getStreamChannel(), text, sender);
                 return;
             case "!random":
                 if (singleCmd) {
-                    bot.sendText(bot.getStreamChannel(), RandomText.getRanSentence());
+                    bot.sendText(bot.getStreamChannel(), RandomText.getRanSentence(), sender);
                     return;
                 }
                 if (msgArray[1].equalsIgnoreCase("join")) {
                     try{
                         bot.sendText(bot.getStreamChannel(), sender +" : " + RandomText.getRanJoin(), msgArray[2]);
                     }catch(IndexOutOfBoundsException e){
-                        bot.sendText(bot.getStreamChannel(), sender +" : essaie encore. Mais avec les bons parametres :P");
+                        bot.sendText(bot.getStreamChannel(), sender +" : essaie encore. Mais avec les bons parametres :P", sender);
                     }
                     return;
                 }
@@ -63,90 +68,90 @@ public class ComData extends StreamerData {
                     try{
                         bot.sendText(bot.getStreamChannel(), sender +" : " +RandomText.getRanLeave(), msgArray[2]);
                     }catch(IndexOutOfBoundsException e){
-                        bot.sendText(bot.getStreamChannel(), sender +" : essaie encore. Mais avec les bons parametres :P");
+                        bot.sendText(bot.getStreamChannel(), sender +" : essaie encore. Mais avec les bons parametres :P", sender);
                     }
                     return;
                 }
                 try {
                     int value = Integer.valueOf(msgArray[1]);
                     Random rand = new Random();
-                    bot.sendText(bot.getStreamChannel(), "" + rand.nextInt(value));
+                    bot.sendText(bot.getStreamChannel(), "" + rand.nextInt(value), sender);
                 } catch (NumberFormatException e) {
                     e.printStackTrace();
-                    bot.sendText(bot.getStreamChannel(), "parametre non valide");
+                    bot.sendText(bot.getStreamChannel(), "parametre non valide", sender);
                 }
                 return;
             case "!votetimeout":
-                if (singleCmd) return;
+                if (singleCmd || votebanInprogress) return;
                 selected = msgArray[1];
                 try {
                     toTime = Integer.valueOf(msgArray[2]);
                 } catch (NumberFormatException | IndexOutOfBoundsException e) {
-                    bot.sendText(bot.getStreamChannel(), "temps invalide, valeur par default = 300sec");
+                    bot.sendText(bot.getStreamChannel(), "temps invalide, valeur par default = 300sec", sender);
                     toTime = 300;
                 }
-                bot.sendText(bot.getStreamChannel(), sender + " veux timeout " + selected);
-                bot.sendText(bot.getStreamChannel(), "!oui ou !non ?");
+                bot.sendText(bot.getStreamChannel(), sender + " veux timeout " + selected, sender);
+                bot.sendText(bot.getStreamChannel(), "!oui ou !non ?", sender);
                 votebanInprogress = true;
                 votes = new HashMap<String, Boolean>();
                 return;
             case "!oui":
                 if (!votebanInprogress) {
-                    bot.sendText(bot.getStreamChannel(), "Pas de !votetimeout en cours :D");
+                    bot.sendText(bot.getStreamChannel(), "Pas de !votetimeout en cours :D", sender);
                     return;
                 }
                 if (!votes.containsKey(sender.toLowerCase())) {
                     votes.put(sender.toLowerCase(), true);
-                    bot.sendText(bot.getStreamChannel(), sender + ", Vote enregistrÃ©");
+                    bot.sendText(bot.getStreamChannel(), sender + ", Vote enregistrÃ©", sender);
                 } else {
-                    bot.sendText(bot.getStreamChannel(), sender + ", T'as deja votÃ©, triche pas ^^");
+                    bot.sendText(bot.getStreamChannel(), sender + ", T'as deja votÃ©, triche pas ^^", sender);
                 }
                 return;
             case "!yes":
                 if (!votebanInprogress) {
-                    bot.sendText(bot.getStreamChannel(), "Pas de !votetimeout en cours :D");
+                    bot.sendText(bot.getStreamChannel(), "Pas de !votetimeout en cours :D", sender);
                     return;
                 }
                 if (!votes.containsKey(sender.toLowerCase())) {
                     votes.put(sender.toLowerCase(), true);
-                    bot.sendText(bot.getStreamChannel(), sender + ", Vote enregistrÃ©");
+                    bot.sendText(bot.getStreamChannel(), sender + ", Vote enregistrÃ©", sender);
                 } else {
-                    bot.sendText(bot.getStreamChannel(), sender + ", T'as deja votÃ©, triche pas ^^");
+                    bot.sendText(bot.getStreamChannel(), sender + ", T'as deja votÃ©, triche pas ^^", sender);
                 }
                 return;
             case "!non":
                 if (!votebanInprogress) {
-                    bot.sendText(bot.getStreamChannel(), "Pas de !votetimeout en cours :D");
+                    bot.sendText(bot.getStreamChannel(), "Pas de !votetimeout en cours :D", sender);
                     return;
                 }
                 if (!votes.containsKey(sender.toLowerCase())) {
                     votes.put(sender.toLowerCase(), false);
-                    bot.sendText(bot.getStreamChannel(), sender + ", Vote enregistrÃ©");
+                    bot.sendText(bot.getStreamChannel(), sender + ", Vote enregistrÃ©", sender);
                 } else {
-                    bot.sendText(bot.getStreamChannel(), sender + ", T'as deja votÃ©, triche pas ^^");
+                    bot.sendText(bot.getStreamChannel(), sender + ", T'as deja votÃ©, triche pas ^^", sender);
                 }
                 return;
             case "!no":
                 if (!votebanInprogress) {
-                    bot.sendText(bot.getStreamChannel(), "Pas de !votetimeout en cours :D");
+                    bot.sendText(bot.getStreamChannel(), "Pas de !votetimeout en cours :D", sender);
                     return;
                 }
                 if (!votes.containsKey(sender.toLowerCase())) {
                     votes.put(sender.toLowerCase(), false);
-                    bot.sendText(bot.getStreamChannel(), sender + ", Vote enregistrÃ©");
+                    bot.sendText(bot.getStreamChannel(), sender + ", Vote enregistrÃ©", sender);
                 } else {
-                    bot.sendText(bot.getStreamChannel(), sender + ", T'as deja votÃ©, triche pas ^^");
+                    bot.sendText(bot.getStreamChannel(), sender + ", T'as deja votÃ©, triche pas ^^", sender);
                 }
                 return;
         }
-        if (this.isUserOp(bot.getStreamChannel(), sender)) {
+        if (bot.getStream().isUserOp(sender)) {
             switch (cmd) {
                 case "!result":
                     if (!votebanInprogress) {
-                        bot.sendText(cmd, msg);
+                        bot.sendText(cmd, "pas de voteban en cours", sender);
                         return;
                     }
-                    bot.sendText(bot.getStreamChannel(), "Calcul en cours...");
+                    bot.sendText(bot.getStreamChannel(), "Calcul en cours...", sender);
                     Iterator<Entry<String, Boolean>> it = votes.entrySet().iterator();
                     int oui = 0,
                     non = 0;
@@ -155,30 +160,30 @@ public class ComData extends StreamerData {
                         if (entry.getValue()) oui++;
                         else non++;
                     }
-                    bot.sendText(bot.getStreamChannel(), "Le chat a votÃ© " + (oui > non ? "OUI a " + 100 * (oui / (oui + non)) + "%" : "NON a " + 100 * (non / (oui + non)) + "%") + " pour le cas de " + selected);
-                    if (oui > non) bot.sendMessage(bot.getStreamChannel(), "/timeout " + selected + " " + toTime);
+                    bot.sendText(bot.getStreamChannel(), "Le chat a votÃ© " + (oui > non ? "OUI a " + 100 * (oui / (oui + non)) + "%" : "NON a " + 100 * (non / (oui + non)) + "%") + " pour le cas de " + selected, sender);
+                    if (oui > non) bot.timeout(sender, toTime);
                     selected = null;
                     votebanInprogress = false;
                     return;
                 case "!cancel":
-                    bot.sendText(bot.getStreamChannel(), "vote annulÃ©e par " + sender);
+                    bot.sendText(bot.getStreamChannel(), "vote annulÃ©e par [@s]" , sender);
                     selected = null;
                     votebanInprogress = false;
                     return;
                 case "!cmdlist":
                     StreamerData stream = StreamerData.getStreamerData(bot.getStreamChannel());
-                    bot.sendText(bot.getStreamChannel(), "commandes communes : " + this.getCommandsList());
-                    bot.sendText(bot.getStreamChannel(), "commandes chez " + stream.getName() + " : " + stream.getCommandsList());
+                    bot.sendText(bot.getStreamChannel(), "commandes communes : " + this.getCommandsList(), sender);
+                    bot.sendText(bot.getStreamChannel(), "commandes chez " + stream.getName() + " : " + stream.getCommandsList(), sender);
                     return;
                 case "!randadd":
                     if (singleCmd) {
-                        bot.sendText(bot.getStreamChannel(), "arguments manquants");
+                        bot.sendText(bot.getStreamChannel(), "arguments manquants", sender);
                     } else if (msgArray[1].equalsIgnoreCase("join")) {
-                        if (RandomText.addRanJoin(arrayToString(msgArray, 2))) bot.sendText(bot.getStreamChannel(), "Fait");
+                        if (RandomText.addRanJoin(arrayToString(msgArray, 2))) bot.sendText(bot.getStreamChannel(), "Fait", sender);
                     } else if (msgArray[1].equalsIgnoreCase("leave")) {
-                        if (RandomText.addRanLeave(arrayToString(msgArray, 2))) bot.sendText(bot.getStreamChannel(), "Fait");
+                        if (RandomText.addRanLeave(arrayToString(msgArray, 2))) bot.sendText(bot.getStreamChannel(), "Fait", sender);
                     } else {
-                        if (RandomText.addRanSentence(arrayToString(msgArray, 1))) bot.sendText(bot.getStreamChannel(), "Fait");
+                        if (RandomText.addRanSentence(arrayToString(msgArray, 1))) bot.sendText(bot.getStreamChannel(), "Fait", sender);
                     }
                     Main.load();
                     return;
@@ -189,21 +194,21 @@ public class ComData extends StreamerData {
                         modos += line + " | ";
                     }
                     else modos += "Aucun :(";
-                    bot.sendText(bot.getStreamChannel(), op);
-                    bot.sendText(bot.getStreamChannel(), modos);
+                    bot.sendText(bot.getStreamChannel(), op, sender);
+                    bot.sendText(bot.getStreamChannel(), modos, sender);
                     return;
                 case "!rainbow" :
                     try{
-                        bot.sendRainbow(channel, TwitchColor.getTwitchColor(msgArray[1]));
+                        bot.sendRainbow(bot.getStreamChannel(), TwitchColor.getTwitchColor(msgArray[1]));
                     }catch(IndexOutOfBoundsException e){
-                        bot.sendRainbow(channel,Main.defColor);
+                        bot.sendRainbow(bot.getStreamChannel() , Main.defColor);
                     }
                     return;
                 case "!canceltimeout" :
                     try{
-                        bot.sendMessage(channel, "/timeout " + msgArray[1] + "0");
+                        bot.timeout(sender,0);
                     }catch(IndexOutOfBoundsException e){
-                        bot.sendText(channel, "[@s] :  manque un nom FailFish ", sender);
+                        bot.sendText(bot.getStreamChannel(), "[@s] :  manque un nom FailFish ", sender);
                     }
                     return;
             }
@@ -217,5 +222,12 @@ public class ComData extends StreamerData {
             s += word + " ";
         }
         return s;
+    }
+
+
+    @Override
+    protected void generateSubCmds() {
+        // TODO Auto-generated method stub
+        
     }
 }

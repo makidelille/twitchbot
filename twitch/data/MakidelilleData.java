@@ -16,7 +16,8 @@ public class MakidelilleData extends StreamerData {
     public static HashMap<String, String> cfg;
     public static String                  resolution = "TODO";
     
-    public void init() {
+    @Override
+    protected void generateSubCmds() {
         cfg = new HashMap<String, String>();
         cfg.put("CPU", "I5 3570 @4.1GHz");
         cfg.put("RAM", "ram data");

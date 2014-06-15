@@ -23,3 +23,6 @@ public abstract class Script {
     public abstract boolean execute(Bot bot,String channel, String sender, String msg);
 
 }
+
+
+//TODO create link script and spam script

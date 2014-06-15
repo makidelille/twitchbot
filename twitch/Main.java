@@ -61,7 +61,7 @@ public class Main {
             stop();
         }
         Bot bot = new Bot(MASTER, Boolean.valueOf(mode));
-        bot.setVerbose(false);
+        bot.setVerbose(true);
         try {
             bot.connect("irc.twitch.tv", 6667, pass);
         } catch (ConnectException e) {
@@ -101,6 +101,8 @@ public class Main {
     }
     
     public static void load() {
+        //TODO add Api 
+        //TODO load the data after login in channel
         StreamerData.load();
         RandomText.load();
     }

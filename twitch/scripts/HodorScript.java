@@ -16,7 +16,7 @@ public class HodorScript extends Script{
     public boolean execute(Bot bot,String channel, String sender, String msg) {
         if(isMsgCmd(msg)) return false;
         else if(!msg.toLowerCase().contains("hodor")) return false;
-        bot.sendMeText(channel, "HODOR", RandomText.getRandomColor());
+        bot.sendMeText(channel, "HODOR", sender, RandomText.getRandomColor());
         return true;
     }
    

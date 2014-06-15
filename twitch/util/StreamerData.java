@@ -16,6 +16,7 @@ import twitch.data.ComData;
 import twitch.data.MakidelilleData;
 import twitch.data.Monstro99Data;
 import twitch.scripts.HodorScript;
+import twitch.scripts.SpamScript;
 import twitch.scripts.XdScript;
 
 
@@ -30,12 +31,15 @@ public abstract class StreamerData {
     private ArrayList<Script> channelScripts;
     
     
-    public abstract void init();
+    public void init(){
+        generateCmdsMap();
+        generateSubCmds();
+    }
     
+
+    protected abstract void generateSubCmds();
     public abstract void onSpecialCmd(Bot bot, String sender, String msg);
     
-    private static StreamerData monstro99;
-    private static StreamerData makidelille;
     public static StreamerData  common;
     
     public static void load() {
@@ -43,17 +47,16 @@ public abstract class StreamerData {
         map = new HashMap<String, StreamerData>();
         
         //instance the data
-        monstro99 = new Monstro99Data();
-        makidelille = new MakidelilleData();
+        new Monstro99Data();
+        new MakidelilleData();
         common = new ComData();
         
         //init the data
-        monstro99.init();
-        makidelille.init();
         common.init();
         
         //start the scripts
         new HodorScript();
+        new SpamScript(common);
         new XdScript();
         
         
@@ -61,11 +64,14 @@ public abstract class StreamerData {
     
     public static StreamerData getStreamerData(String channel) {
         if (channel.startsWith("#")) channel = channel.substring(1);
-        return map.containsKey(channel.toLowerCase()) ? map.get(channel.toLowerCase()) : null;
+        StreamerData stream = map.get(channel.toLowerCase());
+        if(stream == null) return null;
+        stream.init();
+        return stream;
     }
     
-    public boolean isUserOp(String channel, String userToCompare) {
-        if (userToCompare.equalsIgnoreCase(Main.MASTER) || userToCompare.equalsIgnoreCase("makidelille") || userToCompare.equalsIgnoreCase(channel.substring(1))) return true;
+    public boolean isUserOp(String userToCompare) {
+        if (userToCompare.equalsIgnoreCase(Main.MASTER) || userToCompare.equalsIgnoreCase("makidelille") || userToCompare.equalsIgnoreCase(this.getName().substring(1))) return true;
         for (String user : modo) {
             if (user.equals(userToCompare)) return true;
         }
@@ -84,7 +90,6 @@ public abstract class StreamerData {
                 FileRWHelper.createNewFile(cmdsFile);
                 FileRWHelper.writeEndStringInFile(cmdsFile, "#" + this.channel);
             }
-            generateCmdsMap();
         } catch (NullPointerException e) {
             e.printStackTrace();
         }
@@ -127,7 +132,7 @@ public abstract class StreamerData {
         return this.cmdsSpecial.contains(cmd.toLowerCase());
     }
     
-    private void generateCmdsMap() {
+    protected void generateCmdsMap() {
         cmdsSpecial = new ArrayList<String>();
         cmdsBasics = new HashMap<String, String>();
         try {
