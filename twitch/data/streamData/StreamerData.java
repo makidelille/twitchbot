@@ -32,11 +32,14 @@ public abstract class StreamerData {
     public void init() {
         generateCmdsMap();
         generateSubCmds();
+        generateSctipts();
     }
     
+
+    protected abstract void generateSctipts();
     protected abstract void generateSubCmds();
+    public abstract void onSpecialCmd(Bot bot, String sender, String msg);    
     
-    public abstract void onSpecialCmd(Bot bot, String sender, String msg);
     
     public static StreamerData common;
     

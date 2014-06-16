@@ -1,17 +1,12 @@
 package twitch.scripts;
 
 import twitch.bots.Bot;
-import twitch.data.streamData.StreamerData;
 
 
 public class LinkCheckerScript extends Script{
 
     public static final String[] exts = {"academy","aero","asia","bike","biz","blue","build","builders","buzz","cab","camera","camp","careers","cat","catholic","center","ceo","christmas","clothing","club","cofee","com"};
     
-    public LinkCheckerScript(StreamerData stream) {
-        super(stream);
-    }
-
     @Override
     public boolean execute(Bot bot, String channel, String sender, String msg) {
         if(bot.getStream().isUserOp(sender)) return false;

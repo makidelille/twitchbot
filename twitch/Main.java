@@ -9,7 +9,6 @@ import java.util.Scanner;
 
 import twitch.bots.Bot;
 import twitch.data.streamData.StreamerData;
-import twitch.scripts.Script;
 import twitch.util.RandomText;
 import twitch.util.TwitchColor;
 
@@ -105,7 +104,6 @@ public class Main {
     public static void load() {
         //TODO add Api
         StreamerData.load();
-        Script.load();
         RandomText.load();
     }
 }

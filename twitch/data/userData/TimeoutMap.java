@@ -23,20 +23,21 @@ public class TimeoutMap {
     }
     
     public void applyTimeout(Bot bot, String channel, String user) {
+        byte times=0;
         if (!timeoutMap.containsKey(user.toLowerCase())) {
             timeoutMap.put(user.toLowerCase(), (byte) 0);
         } else {
-            byte times = timeoutMap.get(user.toLowerCase()).byteValue();
+            times = timeoutMap.get(user.toLowerCase()).byteValue();
             times = (times < timeoutTime.length - 1 ? times : times++);
-// TODO remove   timeoutMap.put(user.toLowerCase(), times++);
+            timeoutMap.put(user.toLowerCase(), times);
             System.out.println(times);
         }
         try {
-            int timeouttime = timeoutTime[timeoutMap.get(user.toLowerCase())];
+            int timeouttime = timeoutTime[times];
             String warningMsg = RandomText.getTimeoutMsg(timeouttime);
             bot.sendText(channel, warningMsg, user);
             bot.sendTimeout(user, timeouttime);
-        } catch (IndexOutOfBoundsException e) {
+        } catch (IndexOutOfBoundsException e) { // cannot be fire normaly
             String banMsg = "";
             bot.sendText(channel, banMsg, user);
         }

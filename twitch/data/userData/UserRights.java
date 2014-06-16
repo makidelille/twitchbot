@@ -73,7 +73,11 @@ public class UserRights {
     }
 
     public void addOp(String modo) {
-       userAccesMap.put(modo.toLowerCase(), AccessRight.OP);
+       if(userAccesMap.containsKey(modo.toLowerCase())){
+           if(userAccesMap.get(modo.toLowerCase()).equals(AccessRight.MASTER)) return;
+       }
+        
+        userAccesMap.put(modo.toLowerCase(), AccessRight.OP);
     }
     
     

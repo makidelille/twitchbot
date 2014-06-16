@@ -26,4 +26,7 @@ public class MakidelilleData extends StreamerData {
     @Override
     public void onSpecialCmd(Bot bot, String sender, String msg) {
     }
+
+    @Override
+    protected void generateSctipts() {}
 }

@@ -12,6 +12,11 @@ import java.util.Random;
 
 import twitch.Main;
 import twitch.bots.Bot;
+import twitch.scripts.HelloScript;
+import twitch.scripts.LinkCheckerScript;
+import twitch.scripts.SpamScript;
+import twitch.scripts.TimerScript;
+import twitch.scripts.XdScript;
 import twitch.util.RandomText;
 import twitch.util.TwitchColor;
 
@@ -234,4 +239,18 @@ public class ComData extends StreamerData {
 
     @Override
     protected void generateSubCmds() {}
+
+
+    @Override
+    protected void generateSctipts() {
+        //my custom script
+        this.addScript(new XdScript());
+        //msgs scripts
+        this.addScript(new HelloScript());
+        this.addScript(new TimerScript());
+        //security scripts
+        this.addScript(new SpamScript());
+        this.addScript(new LinkCheckerScript());
+        
+    }
 }

@@ -3,7 +3,6 @@ package twitch.scripts;
 import java.util.ArrayList;
 
 import twitch.bots.Bot;
-import twitch.data.streamData.StreamerData;
 import twitch.util.RandomText;
 
 
@@ -11,10 +10,8 @@ public class HelloScript extends Script {
     
     private ArrayList<String> users;
     
-    public HelloScript(StreamerData stream) {
-        super(stream);
+    public HelloScript() {
         users = new ArrayList<String>();
-           
     }
 
     @Override

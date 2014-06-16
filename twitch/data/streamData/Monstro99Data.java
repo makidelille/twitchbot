@@ -6,6 +6,7 @@ import java.util.Iterator;
 import java.util.Map.Entry;
 
 import twitch.bots.Bot;
+import twitch.scripts.HodorScript;
 import twitch.util.RandomText;
 
 
@@ -104,5 +105,10 @@ public class Monstro99Data extends StreamerData {
                 bot.sendText(channel, sender + " : " + RandomText.getRandomString(par), sender);
                 return;
         }
+    }
+
+    @Override
+    protected void generateSctipts() {
+        this.addScript(new HodorScript());
     }
 }
