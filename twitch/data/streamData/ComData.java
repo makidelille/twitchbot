@@ -23,15 +23,14 @@ import twitch.util.TwitchColor;
 
 public class ComData extends StreamerData {
     
-    private boolean                  votebanInprogress;
+    private boolean votebanInprogress;
     private HashMap<String, Boolean> votes;
-    private String                   selected;
-    private Integer                  toTime;
+    private String selected;
+    private Integer toTime;
     
     public ComData() {
         super("twitch");
     }
-  
     
     @Override
     public void onSpecialCmd(Bot bot, String sender, String msg) {
@@ -50,9 +49,9 @@ public class ComData extends StreamerData {
                 bot.sendText(bot.getStreamChannel(), "lmgtfy.com/?q=" + querry, sender);
                 return;
             case "!multi":
-                String text = "multitwitch.tv/" + bot.getStream().getName() +"/";
-                for(String arg : Arrays.copyOfRange(msgArray, 1, msgArray.length)){
-                    text += arg +"/";
+                String text = "multitwitch.tv/" + bot.getStream().getName() + "/";
+                for (String arg : Arrays.copyOfRange(msgArray, 1, msgArray.length)) {
+                    text += arg + "/";
                 }
                 bot.sendText(bot.getStreamChannel(), text, sender);
                 return;
@@ -62,18 +61,18 @@ public class ComData extends StreamerData {
                     return;
                 }
                 if (msgArray[1].equalsIgnoreCase("join")) {
-                    try{
-                        bot.sendText(bot.getStreamChannel(), sender +" : " + RandomText.getRanJoin(), msgArray[2]);
-                    }catch(IndexOutOfBoundsException e){
-                        bot.sendText(bot.getStreamChannel(), sender +" : essaie encore. Mais avec les bons parametres :P", sender);
+                    try {
+                        bot.sendText(bot.getStreamChannel(), sender + " : " + RandomText.getRanJoin(), msgArray[2]);
+                    } catch (IndexOutOfBoundsException e) {
+                        bot.sendText(bot.getStreamChannel(), sender + " : essaie encore. Mais avec les bons parametres :P", sender);
                     }
                     return;
                 }
                 if (msgArray[1].equalsIgnoreCase("leave")) {
-                    try{
-                        bot.sendText(bot.getStreamChannel(), sender +" : " +RandomText.getRanLeave(), msgArray[2]);
-                    }catch(IndexOutOfBoundsException e){
-                        bot.sendText(bot.getStreamChannel(), sender +" : essaie encore. Mais avec les bons parametres :P", sender);
+                    try {
+                        bot.sendText(bot.getStreamChannel(), sender + " : " + RandomText.getRanLeave(), msgArray[2]);
+                    } catch (IndexOutOfBoundsException e) {
+                        bot.sendText(bot.getStreamChannel(), sender + " : essaie encore. Mais avec les bons parametres :P", sender);
                     }
                     return;
                 }
@@ -165,13 +164,15 @@ public class ComData extends StreamerData {
                         if (entry.getValue()) oui++;
                         else non++;
                     }
-                    bot.sendText(bot.getStreamChannel(), "Le chat a votÃ© " + (oui > non ? "OUI a " + 100 * (oui / (oui + non)) + "%" : "NON a " + 100 * (non / (oui + non)) + "%") + " pour le cas de " + selected, sender);
+                    bot.sendText(bot.getStreamChannel(), "Le chat a votÃ© "
+                            + (oui > non ? "OUI a " + 100 * (oui / (oui + non)) + "%" : "NON a " + 100 * (non / (oui + non)) + "%")
+                            + " pour le cas de " + selected, sender);
                     if (oui > non) bot.sendTimeout(sender, toTime);
                     selected = null;
                     votebanInprogress = false;
                     return;
                 case "!cancel":
-                    bot.sendText(bot.getStreamChannel(), "vote annulÃ©e par [@s]" , sender);
+                    bot.sendText(bot.getStreamChannel(), "vote annulÃ©e par [@s]", sender);
                     selected = null;
                     votebanInprogress = false;
                     return;
@@ -205,21 +206,20 @@ public class ComData extends StreamerData {
                         modos += line + " | ";
                     }
                     else modos += "Aucun :(";
-                    
                     bot.sendText(bot.getStreamChannel(), masters, sender);
                     bot.sendText(bot.getStreamChannel(), modos, sender);
                     return;
-                case "!rainbow" :
-                    try{
+                case "!rainbow":
+                    try {
                         bot.sendRainbow(bot.getStreamChannel(), TwitchColor.getTwitchColor(msgArray[1]));
-                    }catch(IndexOutOfBoundsException e){
-                        bot.sendRainbow(bot.getStreamChannel() , Main.defColor);
+                    } catch (IndexOutOfBoundsException e) {
+                        bot.sendRainbow(bot.getStreamChannel(), Main.defColor);
                     }
                     return;
-                case "!canceltimeout" :
-                    try{
+                case "!canceltimeout":
+                    try {
                         bot.cancelTimeout(msgArray[1]);
-                    }catch(IndexOutOfBoundsException e){
+                    } catch (IndexOutOfBoundsException e) {
                         bot.sendText(bot.getStreamChannel(), "[@s] :  manque un nom FailFish ", sender);
                     }
                     return;
@@ -235,22 +235,20 @@ public class ComData extends StreamerData {
         }
         return s;
     }
-
-
+    
     @Override
-    protected void generateSubCmds() {}
-
-
+    protected void generateSubCmds() {
+    }
+    
     @Override
     protected void generateSctipts() {
-        //my custom script
+        // my custom script
         this.addScript(new XdScript());
-        //msgs scripts
+        // msgs scripts
         this.addScript(new HelloScript());
         this.addScript(new TimerScript());
-        //security scripts
+        // security scripts
         this.addScript(new SpamScript());
         this.addScript(new LinkCheckerScript());
-        
     }
 }

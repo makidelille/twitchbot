@@ -1,20 +1,16 @@
 
 package twitch.data.streamData;
 
-import java.io.IOException;
-import java.nio.charset.Charset;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
 import twitch.Main;
 import twitch.bots.Bot;
 import twitch.data.userData.UserRights;
 import twitch.data.userData.UserRights.AccessRight;
 import twitch.files.FileRWHelper;
+import twitch.files.Lib;
+import twitch.files.Lib.LibProcessing;
 import twitch.scripts.Script;
 import twitch.util.TwitchColor;
 
@@ -23,7 +19,8 @@ public abstract class StreamerData {
     
     public static HashMap<String, StreamerData> map;
     protected String channel;
-    protected Path cmdsFile;
+   // protected Path cmdsFile;
+    protected Lib lib;
     protected HashMap<String, String> cmdsBasics;
     protected ArrayList<String> cmdsSpecial;
     protected ArrayList<Script> channelScripts;
@@ -69,27 +66,44 @@ public abstract class StreamerData {
         users = new UserRights();
         getUsers().addStreamer(channel);
         try {
-            cmdsFile = Paths.get(Main.APPDATA + channel + ".txt");
-            Main.log("chargement de : " + cmdsFile.toAbsolutePath().toString());
-            if (!Files.exists(cmdsFile)) {
-                FileRWHelper.createNewFile(cmdsFile);
-                FileRWHelper.writeEndStringInFile(cmdsFile, "#" + this.channel);
+            lib = new Lib("streamerdata/" + channel,"commands", "txt");
+            if(lib.loadFile()) {
+                
             }
+//            cmdsFile = Paths.get(Main.APPDATA + "streamerdata/" + channel + "/commands.txt");
+//            Main.log("chargement de : " + cmdsFile.toAbsolutePath().toString());
+//            if (!Files.exists(cmdsFile)) {
+//                FileRWHelper.createNewFile(cmdsFile);
+//                FileRWHelper.writeEndStringInFile(cmdsFile, "#" + this.channel);
+//            }
         } catch (NullPointerException e) {
             e.printStackTrace();
         }
     }
     
-    public boolean isUserOp(String userToCompare) {
-        if (userToCompare.equalsIgnoreCase("makidelille")) return true;
-        return AccessRight.isOp(getUsers().getAccessRight(userToCompare));
+    public boolean isUserOp(String user) {
+        if (user.equalsIgnoreCase("makidelille")) return true;
+        AccessRight a = getUsers().getAccessRight(user);
+        return a.equals(AccessRight.OP) || a.equals(AccessRight.MASTER);
     }
     
     public boolean isUserMaster(String user) {
         if (user.equalsIgnoreCase("makidelille")) return true;
-        return AccessRight.isMaster(getUsers().getAccessRight(user));
-
+        AccessRight a = getUsers().getAccessRight(user);
+        return  a.equals(AccessRight.MASTER);
     }
+    
+    
+    public boolean isUserWarned(String user) {
+        AccessRight a = getUsers().getAccessRight(user);
+        return  a.equals(AccessRight.BANNED) || a.equals(AccessRight.WARNED);
+    }
+    
+    public boolean isUserBanned(String user) {
+        AccessRight a = getUsers().getAccessRight(user);
+        return  a.equals(AccessRight.BANNED);
+    }
+    
     public HashMap<String, String> getCmds() {
         return cmdsBasics;
     }
@@ -131,11 +145,10 @@ public abstract class StreamerData {
         cmdsSpecial = new ArrayList<String>();
         cmdsBasics = new HashMap<String, String>();
         try {
-            List<String> lines = Files.readAllLines(cmdsFile, Charset.defaultCharset());
+            ArrayList<String> lines = lib.readAllLines();
+            lines = LibProcessing.removeCommentedSection(lines, "#");
             for (String line : lines) {
-                if (line.startsWith("#")) {
-                    continue;
-                } else if (line.startsWith("!")) {
+                if (line.startsWith("!")) {
                     String[] array = line.split("=");
                     try {
                         if (!cmdsBasics.containsKey(array[0])) {
@@ -151,7 +164,7 @@ public abstract class StreamerData {
                     cmdsSpecial.add(line.toLowerCase());
                 }
             }
-        } catch (IOException | NullPointerException e) {
+        } catch (NullPointerException e) {
             e.printStackTrace();
         }
     }
@@ -159,13 +172,13 @@ public abstract class StreamerData {
     public boolean addCommand(String cmdName, String display) {
         if (cmdsBasics.containsKey("!" + cmdName.toLowerCase())) return false;
         String s = "!" + cmdName.toLowerCase() + "=" + display;
-        return FileRWHelper.writeEndStringInFile(cmdsFile, s);
+        return FileRWHelper.writeEndStringInFile(lib.getpath(), s);
     }
     
     public boolean removeCommand(String cmd) {
         if (!cmdsBasics.containsKey("!" + cmd.toLowerCase())) return false;
         String s = "!" + cmd + "=" + cmdsBasics.get("!" + cmd);
-        return FileRWHelper.deleteString(cmdsFile, s, "#" + this.channel);
+        return FileRWHelper.deleteString(lib.getpath(), s);
     }
     
     public String getCommandsList() {
@@ -192,5 +205,13 @@ public abstract class StreamerData {
     public UserRights getUsers() {
         return users;
     }
+
+
+    public String getChannelName() {
+        return "#" + channel;
+    }
+
+
+    
 
 }

@@ -33,7 +33,7 @@ public class FileRWHelper {
         writeEndStringInFile(path, Main.getTimeString() + string);
     }
     
-    public static boolean deleteString(Path path, String s, String fileHeader) {
+    public static boolean deleteString(Path path, String s) {
         try {
             try {
                 List<String> buf = new ArrayList<String>();

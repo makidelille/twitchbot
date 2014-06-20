@@ -4,6 +4,7 @@ package twitch.scripts;
 import java.util.ArrayList;
 
 import twitch.bots.Bot;
+import twitch.files.Lib;
 
 
 public class TimerScript extends Script {
@@ -20,10 +21,11 @@ public class TimerScript extends Script {
     @Override
     public boolean execute(Bot bot, String channel, String sender, String msg) {
         if (!hasInit) {
-            load();
+            load(bot);
             hasInit = true;
         }
-        if (msg.startsWith("!")) configure(bot, msg, sender);
+        if (msgs.isEmpty()) return false;
+        if (msg.startsWith("!")) if (configure(bot, msg, sender)) return true;
         if (!isActive) return false;
         if (msgs.isEmpty()) return false;
         msgSentSinceLast++;
@@ -36,21 +38,20 @@ public class TimerScript extends Script {
         return false;
     }
     
-    private void configure(Bot bot, String msg, String sender) {
-        if (!bot.getStream().isUserOp(sender)) return;
+    private boolean configure(Bot bot, String msg, String sender) {
+        if (!bot.getStream().isUserOp(sender)) return false;
         String[] array = msg.split(" ");
-        if (!array[0].equalsIgnoreCase("!spam")) return;
+        if (!array[0].equalsIgnoreCase("!spam")) return false;
         switch (array[1]) {
             case "setTime":
                 try {
-                    timeDif = Integer.valueOf(array[2]) * 1000; // time is in
-                                                                // sec
+                    timeDif = Integer.valueOf(array[2]) * 1000; // time is in sec
                     bot.sendText(bot.getStreamChannel(), "intervalle de temps mini : " + timeDif / 1000 + "s", sender);
                 } catch (IndexOutOfBoundsException | NumberFormatException e) {
                     e.printStackTrace();
                     bot.sendText(bot.getStreamChannel(), "erreur dans la commande !", sender);
                 }
-                return;
+                return true;
             case "setDif":
                 try {
                     msgDif = Integer.valueOf(array[2]);
@@ -59,18 +60,19 @@ public class TimerScript extends Script {
                     e.printStackTrace();
                     bot.sendText(bot.getStreamChannel(), "erreur dans la commande !", sender);
                 }
-                return;
+                return true;
             case "on":
                 isActive = true;
                 bot.sendText(bot.getStreamChannel(), "envoie de message régulier ", sender);
-                return;
+                return true;
             case "off":
                 isActive = false;
                 bot.sendText(bot.getStreamChannel(), "pas de message régulier", sender);
-                return;
+                return true;
         }
         // erreur dans les args de la commande envoy�
         bot.sendText(bot.getStreamChannel(), "erreur dans la commande !", sender);
+        return true;
     }
     
     private void sendNextMessage(Bot bot) {
@@ -80,6 +82,9 @@ public class TimerScript extends Script {
         indCurMsg = indCurMsg < msgs.size() - 1 ? indCurMsg++ : 0;
     }
     
-    private void load() {
+    private void load(Bot bot) {
+        Lib libMsg = new Lib("streamerdata/" + bot.getStream().getName() + "/script", "regular", "txt");
+        if (libMsg.loadFile()) msgs = libMsg.readAllLines();
+        else msgs = new ArrayList<String>();
     }
 }

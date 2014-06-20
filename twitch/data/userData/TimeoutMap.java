@@ -4,6 +4,7 @@ package twitch.data.userData;
 import java.util.HashMap;
 
 import twitch.bots.Bot;
+import twitch.data.userData.UserRights.AccessRight;
 import twitch.util.RandomText;
 
 
@@ -37,6 +38,12 @@ public class TimeoutMap {
             String warningMsg = RandomText.getTimeoutMsg(timeouttime);
             bot.sendText(channel, warningMsg, user);
             bot.sendTimeout(user, timeouttime);
+            if(timeouttime > timeoutTime[2]) {
+                bot.getStream().getUsers().setUserRight(user, AccessRight.WARNED);
+            }
+            if(timeouttime >= timeoutTime[7]){
+                bot.getStream().getUsers().setUserRight(user, AccessRight.BANNED);
+            }
         } catch (IndexOutOfBoundsException e) { // cannot be fire normaly
             String banMsg = "";
             bot.sendText(channel, banMsg, user);

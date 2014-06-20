@@ -31,9 +31,8 @@ public class Lib {
     private Path dirPath;
     
     public Lib(String dir, String libName, String ext) {
-        dirPath = Paths.get(Main.APPDATA + (dir == "" ? "" : dir));
+        dirPath = Paths.get(Main.APPDATA + dir);
         libPath = Paths.get(dirPath +"/" +  libName + "." + ext);
-        System.out.println(libPath);
     }
     
     public ArrayList<String> readAllLines(Charset cs) {
@@ -45,6 +44,7 @@ public class Lib {
     }
     
     public boolean loadFile() {
+        Main.log("loading file : " + libPath);
         try {
             if (Files.exists(libPath)) return true;
             else {

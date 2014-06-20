@@ -15,17 +15,17 @@ import twitch.util.TwitchColor;
 
 public class Bot extends PircBot {
     
-    private int               spamDelay    = 60;
-    public boolean            isPaused     = false;
-    public boolean            forceQuit    = false;
-    private boolean           debugMode    = false;
-    private boolean           silentMode   = false;
-    private boolean           antiSpam     = false;
-    private boolean           alwaysAnswer = true;
-    private boolean           hello        = true;
-    private long              lastCmdtime;
-    private RBot              rBot;
-    private StreamerData      stream;
+    private int spamDelay = 60;
+    public boolean isPaused = false;
+    public boolean forceQuit = false;
+    private boolean debugMode = false;
+    private boolean silentMode = false;
+    private boolean antiSpam = false;
+    private boolean alwaysAnswer = true;
+    private boolean hello = true;
+    private long lastCmdtime;
+    private RBot rBot;
+    private StreamerData stream;
     
     public Bot(String name, boolean silentMode) {
         this.setName(name);
@@ -48,10 +48,12 @@ public class Bot extends PircBot {
         int difS = (int) ((cmdtime - lastCmdtime) / Math.pow(10, 9));
         // check the scripts
         if (!isPaused) {
-            for (Script script : stream.getScripts()) {
+            // here i check the security scripts
+            for (Script script : StreamerData.common.getScripts()) {
                 if (script.execute(this, channel, sender, msg)) return;
             }
-            for (Script script : StreamerData.common.getScripts()) {
+            // if(stream.isUserBanned(sender)) return;
+            for (Script script : stream.getScripts()) {
                 if (script.execute(this, channel, sender, msg)) return;
             }
         }
@@ -63,20 +65,18 @@ public class Bot extends PircBot {
         // check pause des cmds
         if ((isPaused && !stream.isUserOp(sender)) || stream == null) return;
         // bot cmds
-        if (stream.isUserOp(sender)) {
+        if (stream.isUserMaster(sender)) {
             switch (cmd) {
                 case "!ping":
                     sendMeText(channel, "pong", sender);
                     return;
                 case "!leave":
-                    if (stream.isUserMaster(sender)) {
-                        sendMeText(channel, "Bot leaving and returning home ...", sender);
-                        this.partChannel(channel);
-                        this.joinChannel(Main.MASTERCHANNEL);
-                    }
+                    sendMeText(channel, "Bot leaving and returning home ...", sender);
+                    this.partChannel(channel);
+                    this.joinChannel(Main.MASTERCHANNEL);
                     return;
                 case "!join":
-                    if (!singleCmd && (stream.isUserMaster(sender))) {
+                    try {
                         sendMeText(channel, "Joining " + msgArray[1], sender);
                         try {
                             silentMode = !Boolean.valueOf(msgArray[2]);
@@ -84,28 +84,25 @@ public class Bot extends PircBot {
                         }
                         this.partChannel(getStreamChannel());
                         this.joinChannel("#" + msgArray[1]);
+                    } catch (IndexOutOfBoundsException e) {
+                        sendText(channel, "invalid arg", sender);
                     }
                     return;
                 case "!quit":
-                    if (stream.isUserMaster(sender)) {
-                        this.sendMeText(getStreamChannel(), "BOT STOPPING", "");
-                        quit();
+                    this.sendMeText(getStreamChannel(), "BOT STOPPING", "");
+                    quit();
+                    return;
+                case "!addmaster":
+                    try {
+                        stream.getUsers().addMaster(msgArray[1].toLowerCase());
+                        sendText(channel, "[@s] est maintenant un master", msgArray[1]);
+                    } catch (IndexOutOfBoundsException e) {
                     }
                     return;
-                case "!pause":
-                    if (isPaused) sendMeText(channel, "[@s] --> FailFish", sender, TwitchColor.ORANGE);
-                    else sendMeText(channel, "Bot en pause", sender, TwitchColor.RED);
-                    this.isPaused = true;
-                    return;
-                case "!resume":
-                    if (isPaused) sendMeText(channel, "Bot actif", sender, TwitchColor.GREEN);
-                    else sendMeText(channel, "Bot deja actif", sender, TwitchColor.GREEN);
-                    this.isPaused = false;
-                    return;
-                case "!reload":
-                    sendText(channel, "Reload", sender);
-                    Main.load();
-                    stream = StreamerData.getStreamerData(channel);
+                case "!debug":
+                    debugMode = !debugMode;
+                    sendMeText(channel, "Debug Mode : " + (debugMode ? "On" : "Off"), sender, TwitchColor.RED);
+                    this.setVerbose(debugMode);
                     return;
                 case "!logbot":
                     try {
@@ -122,12 +119,23 @@ public class Bot extends PircBot {
                         sendText(channel, "par manquant", sender);
                     }
                     return;
-                case "!debug":
-                    if (stream.isUserMaster(sender)) {
-                        debugMode = !debugMode;
-                        sendMeText(channel, "Debug Mode : " + (debugMode ? "On" : "Off"), sender, TwitchColor.RED);
-                        this.setVerbose(debugMode);
-                    }
+            }
+        } else if (stream.isUserOp(sender)) {
+            switch (cmd) {
+                case "!pause":
+                    if (isPaused) sendMeText(channel, "[@s] --> FailFish", sender, TwitchColor.ORANGE);
+                    else sendMeText(channel, "Bot en pause", sender, TwitchColor.RED);
+                    this.isPaused = true;
+                    return;
+                case "!resume":
+                    if (isPaused) sendMeText(channel, "Bot actif", sender, TwitchColor.GREEN);
+                    else sendMeText(channel, "Bot deja actif", sender, TwitchColor.GREEN);
+                    this.isPaused = false;
+                    return;
+                case "!reload":
+                    sendText(channel, "Reload", sender);
+                    Main.load();
+                    stream = StreamerData.getStreamerData(channel);
                     return;
                 case "!alwaysanswer":
                     if (alwaysAnswer) {
@@ -178,17 +186,10 @@ public class Bot extends PircBot {
                         sendText(channel, "[@s] : erreur dans les arguments, y a pas de débat possible :o", sender);
                     }
                     return;
-                case "!addmaster":
-                    if (stream.isUserMaster(sender)) {
-                        try {
-                            stream.getUsers().addMaster(msgArray[1].toLowerCase());
-                            sendText(channel, "[@s] est maintenant un master", msgArray[1]);
-                        } catch (IndexOutOfBoundsException e) {
-                        }
-                    }
-                    return;
             }
         }
+        // I check if the user is warned
+        if (stream.isUserWarned(sender)) return;
         // channels cmds
         if (!handleChannelMsg(channel, sender, msg)) {
             if (!handleChannelMsg(StreamerData.common.getName(), sender, msg)) {
@@ -246,7 +247,7 @@ public class Bot extends PircBot {
                 e.printStackTrace();
                 return;
             }
-        }else if (mode.contains("-o")) {
+        } else if (mode.contains("-o")) {
             try {
                 String modo = mode.split(" ")[2];
                 if (stream.getUsers().getOpUsers().contains(modo)) {
@@ -303,7 +304,7 @@ public class Bot extends PircBot {
     }
     
     public boolean handleChannelMsg(String channel, String sender, String msg) {
-        StreamerData tempStream = channel.equals(StreamerData.common.getName()) ? StreamerData.common : stream;
+        StreamerData tempStream = channel.equals(StreamerData.common.getChannelName()) ? StreamerData.common : stream;
         boolean op = tempStream.isUserOp(sender);
         boolean success = false;
         String[] msgArray = msg.split(" ");
@@ -382,8 +383,8 @@ public class Bot extends PircBot {
     }
     
     private void quit() {
-        Main.log("BOTS DISCONNECTING");
-        if(rBot != null) {
+        Main.log("BOT(S) DISCONNECTING");
+        if (rBot != null) {
             rBot.disconnect();
             rBot.dispose();
         }
@@ -405,10 +406,9 @@ public class Bot extends PircBot {
         sendMessage(getStreamChannel(), "/timeout " + sender + " " + time);
         Main.log("timeout de " + sender + " pour " + time + "s");
     }
-
+    
     public void cancelTimeout(String sender) {
-       sendMessage(getStreamChannel(), "/timeout " + sender + " " + -1);
-       Main.log("annulation du timeout de " + sender);
-        
+        sendMessage(getStreamChannel(), "/timeout " + sender + " " + -1);
+        Main.log("annulation du timeout de " + sender);
     }
 }

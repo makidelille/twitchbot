@@ -14,18 +14,14 @@ import twitch.files.Lib.LibProcessing;
 
 public class RandomText {
     
-    // private static ArrayList<String> join, leave, random;
-    // private static Path joinPath, leavePath, ranPath;
-    private static final String[]                     libs   = { "join", "leave", "misc" };
-    private static final String                       libDir = "lib";
+    private static final String[] libs = { "join", "leave", "misc" };
+    private static final String libDir = "lib";
     private static HashMap<String, ArrayList<String>> libStringsMap;
     private static HashMap<String, Path> libPathsMap;
-
     
     public static void load() {
         libStringsMap = new HashMap<String, ArrayList<String>>();
         libPathsMap = new HashMap<String, Path>();
-        
         for (String lib : libs) {
             Lib temp = new Lib(libDir, lib, "txt");
             if (temp.loadFile()) {
@@ -36,13 +32,12 @@ public class RandomText {
             libStringsMap.put(lib.toLowerCase(), lines);
             libPathsMap.put(lib.toLowerCase(), temp.getpath());
         }
- 
     }
     
     public static String getRandomStringFromLib(String libName) {
         if (!libStringsMap.containsKey(libName.toLowerCase())) return "";
         ArrayList<String> lines = libStringsMap.get(libName.toLowerCase());
-        if(lines.isEmpty()) return "";
+        if (lines.isEmpty()) return "";
         try {
             int ran = new Random().nextInt(lines.size());
             return lines.get(ran);
@@ -53,7 +48,7 @@ public class RandomText {
     }
     
     public static boolean addStringToLib(String libName, String string) {
-        if(!libPathsMap.containsKey(libName.toLowerCase())) return false;
+        if (!libPathsMap.containsKey(libName.toLowerCase())) return false;
         return FileRWHelper.writeEndStringInFile(libPathsMap.get(libName.toLowerCase()), string);
     }
     
@@ -69,18 +64,18 @@ public class RandomText {
         return getRandomStringFromLib("misc");
     }
     
-     public static boolean addRanJoin(String string) {
-         return addStringToLib("join", string);
-     }
+    public static boolean addRanJoin(String string) {
+        return addStringToLib("join", string);
+    }
     
-     public static boolean addRanLeave(String string) {
-         return addStringToLib("leave", string);
-     }
+    public static boolean addRanLeave(String string) {
+        return addStringToLib("leave", string);
+    }
     
-     public static boolean addRanSentence(String string) {
-         return addStringToLib("misc", string);
-     }
-     
+    public static boolean addRanSentence(String string) {
+        return addStringToLib("misc", string);
+    }
+    
     public static char getRandomChar() {
         Random ran = new Random();
         return (char) (65 + ran.nextInt(123));

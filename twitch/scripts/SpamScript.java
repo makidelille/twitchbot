@@ -10,13 +10,13 @@ public class SpamScript extends Script{
 
     private int MAXMPM = 15;
     private boolean isActive = true;
-    private HashMap<String, Timelog> userTime = new HashMap<String, Timelog>();;
+    private HashMap<String, Timelog> userTime = new HashMap<String, Timelog>();
 
     
     
     @Override
     public boolean execute(Bot bot, String channel, String sender, String msg) {
-        if(msg.startsWith("!")) configure(bot,sender,msg);
+        if(msg.startsWith("!")) if(configure(bot,sender,msg)) return true;
         if(!isActive) return false;
         if(bot.getStream().isUserOp(sender)) return false;
         if(!userTime.containsKey(sender.toLowerCase())){
@@ -35,10 +35,10 @@ public class SpamScript extends Script{
     }
 
 
-    private void configure(Bot bot, String sender, String msg) {
-        if(!bot.getStream().isUserOp(sender)) return;
+    private boolean configure(Bot bot, String sender, String msg) {
+        if(!bot.getStream().isUserOp(sender)) return false;
         String[] array = msg.split(" ");
-        if(!array[0].equalsIgnoreCase("!spam")) return;        
+        if(!array[0].equalsIgnoreCase("!spam")) return false;        
         switch(array[1]) {
             case "set" :
                 try{
@@ -48,19 +48,19 @@ public class SpamScript extends Script{
                     e.printStackTrace();
                     bot.sendText(bot.getStreamChannel(), "erreur dans la commande !", sender);
                 }
-                return;
+                return true;
             case "on" :
                 isActive = true;
                 bot.sendText(bot.getStreamChannel(), "antispam actif,  max mpm : " + MAXMPM, sender);
-                return;
+                return true;
             case "off" :
                 isActive = false;
                 bot.sendText(bot.getStreamChannel(), "antispam inactif", sender);
-                return;
+                return true;
         }
         //erreur dans les args de la commande envoyé
         bot.sendText(bot.getStreamChannel(), "erreur dans la commande !", sender);
-        
+        return true;
     }
 
 

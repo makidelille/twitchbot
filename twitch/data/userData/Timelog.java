@@ -15,23 +15,6 @@ public class Timelog {
         return timelastmsg.get(timelastmsg.size()-1);
     }
     
-    public float getAverageMessageSpeedOnMinute() {//TODO redo it
-        int size = timelastmsg.size();
-        long sum=0;
-        long time=0;
-        for(int i =timelastmsg.size() -1 ; i > 0; i--){
-            time = timelastmsg.get(i) - timelastmsg.get(i-1);
-            if(timelastmsg.get(size-1) - timelastmsg.get(i) > 60 * 1_000) break;
-            sum += time;
-        }
-        float avg = (float) sum/ (float) size;
-        return avg/1000f;
-    }
-    
-    public int getTotalMsg(){
-        return timelastmsg.size();
-    }
-    
     public int getTotalMessageInRow(int periodtime){
         if(timelastmsg.size() < 2) return 1;
         int i=0;
@@ -44,7 +27,6 @@ public class Timelog {
         }
         return i;
     }
-    
     
     //stocke les temps
     public void addNewTime(long time){

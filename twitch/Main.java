@@ -15,11 +15,11 @@ import twitch.util.TwitchColor;
 
 public class Main {
     
-    public static final String APPDATA       = System.getenv("appdata") + "/twitchbot/";
-    private static String      pass;
-    private static String      mode;
-    public static long         startTime;
-    public static final String MASTER        = "makidelille";
+    public static final String APPDATA = System.getenv("appdata") + "/twitchbot/";
+    private static String pass;
+    private static String mode;
+    public static long startTime;
+    public static final String MASTER = "makidelille";
     public static final String MASTERCHANNEL = "#" + MASTER;
     public static final TwitchColor defColor = TwitchColor.BLUE;
     
@@ -53,7 +53,7 @@ public class Main {
             mode = args[1];
         }
         Main.load();
-        if (!pass.startsWith("oauth")) {
+        if (!pass.startsWith("oauth:")) {
             log("======================");
             log("NOT A VALIDE OAUTH KEY");
             log("  BOT WILL NOT START");
@@ -61,7 +61,7 @@ public class Main {
             stop();
         }
         Bot bot = new Bot(MASTER, Boolean.valueOf(mode));
-        bot.setVerbose(false);
+        bot.setVerbose(true);
         try {
             bot.connect("irc.twitch.tv", 6667, pass);
         } catch (ConnectException e) {
@@ -82,7 +82,7 @@ public class Main {
     }
     
     public static void stop() {
-        int dif =(int) ((System.nanoTime() - startTime)/Math.pow(10, 9));
+        int dif = (int) ((System.nanoTime() - startTime) / Math.pow(10, 9));
         log("EXECUTION TIME : " + dif + "s");
         log("=======================");
         log("=======================");
@@ -102,7 +102,8 @@ public class Main {
     }
     
     public static void load() {
-        //TODO add Api
+        // TODO add Api
+        // TODO add config option for the scripts
         StreamerData.load();
         RandomText.load();
     }

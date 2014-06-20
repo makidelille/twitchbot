@@ -47,14 +47,6 @@ public class UserRights {
                     return ND;
             }
         }
-        
-        public static boolean isOp(AccessRight a) {
-            return a.equals(OP) || a.equals(MASTER);
-        }
-
-        public static boolean isMaster(AccessRight accessRight) {
-            return accessRight.equals(MASTER);
-        }
     }
     
     public HashMap<String, AccessRight> userAccesMap;
@@ -67,19 +59,17 @@ public class UserRights {
     public void addUser(String user) {
         userAccesMap.put(user.toLowerCase(), AccessRight.VIEWER);
     }
-
+    
     public void removeOp(String modo) {
         userAccesMap.put(modo.toLowerCase(), AccessRight.VIEWER);
     }
-
+    
     public void addOp(String modo) {
-       if(userAccesMap.containsKey(modo.toLowerCase())){
-           if(userAccesMap.get(modo.toLowerCase()).equals(AccessRight.MASTER)) return;
-       }
-        
+        if (userAccesMap.containsKey(modo.toLowerCase())) {
+            if (userAccesMap.get(modo.toLowerCase()).equals(AccessRight.MASTER)) return;
+        }
         userAccesMap.put(modo.toLowerCase(), AccessRight.OP);
     }
-    
     
     public void addMaster(String user) {
         userAccesMap.put(user.toLowerCase(), AccessRight.MASTER);
@@ -89,9 +79,8 @@ public class UserRights {
         userAccesMap.put(channel.toLowerCase(), AccessRight.MASTER);
     }
     
-    
-    public void setUserRight(String user,AccessRight right) {
-       userAccesMap.put(user.toLowerCase(), right);
+    public void setUserRight(String user, AccessRight right) {
+        userAccesMap.put(user.toLowerCase(), right);
     }
     
     public AccessRight getAccessRight(String userToCompare) {
@@ -102,9 +91,9 @@ public class UserRights {
     public ArrayList<String> getOpUsers() {
         ArrayList<String> modo = new ArrayList<String>();
         Iterator<Entry<String, AccessRight>> it = userAccesMap.entrySet().iterator();
-        while(it.hasNext()) {
+        while (it.hasNext()) {
             Entry<String, AccessRight> entry = it.next();
-            if(entry.getValue().equals(AccessRight.OP)) modo.add(entry.getKey());
+            if (entry.getValue().equals(AccessRight.OP)) modo.add(entry.getKey());
         }
         return modo;
     }
@@ -112,11 +101,10 @@ public class UserRights {
     public ArrayList<String> getMasterUsers() {
         ArrayList<String> master = new ArrayList<String>();
         Iterator<Entry<String, AccessRight>> it = userAccesMap.entrySet().iterator();
-        while(it.hasNext()) {
+        while (it.hasNext()) {
             Entry<String, AccessRight> entry = it.next();
-            if(entry.getValue().equals(AccessRight.MASTER)) master.add(entry.getKey());
+            if (entry.getValue().equals(AccessRight.MASTER)) master.add(entry.getKey());
         }
         return master;
     }
-
 }
