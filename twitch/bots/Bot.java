@@ -22,14 +22,13 @@ public class Bot extends PircBot {
     private boolean silentMode = false;
     private boolean antiSpam = false;
     private boolean alwaysAnswer = true;
-    private boolean hello = true;
     private long lastCmdtime;
     private RBot rBot;
     private StreamerData stream;
     
     public Bot(String name, boolean silentMode) {
         this.setName(name);
-        this.setMessageDelay(10);
+        this.setMessageDelay(1000);
         this.isPaused = false;
         new HashMap<String, Boolean>();
         this.silentMode = silentMode;
@@ -65,6 +64,7 @@ public class Bot extends PircBot {
         // check pause des cmds
         if ((isPaused && !stream.isUserOp(sender)) || stream == null) return;
         // bot cmds
+        
         if (stream.isUserMaster(sender)) {
             switch (cmd) {
                 case "!ping":
@@ -152,10 +152,6 @@ public class Bot extends PircBot {
                     }
                     this.alwaysAnswer = false;
                     sendMeText(channel, "je repondrai qu'aux bons :P", sender, TwitchColor.CHOCOLATE);
-                    return;
-                case "!hello":
-                    hello = !hello;
-                    sendMeText(channel, "hello Mode : " + (hello ? "On" : "Off"), sender, TwitchColor.BLUE);
                     return;
                 case "!botspam":
                     if (singleCmd) {
@@ -304,7 +300,7 @@ public class Bot extends PircBot {
     }
     
     public boolean handleChannelMsg(String channel, String sender, String msg) {
-        StreamerData tempStream = channel.equals(StreamerData.common.getChannelName()) ? StreamerData.common : stream;
+        StreamerData tempStream = channel.equals(StreamerData.common.getName()) ? StreamerData.common : stream;
         boolean op = tempStream.isUserOp(sender);
         boolean success = false;
         String[] msgArray = msg.split(" ");

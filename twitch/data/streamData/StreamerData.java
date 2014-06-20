@@ -70,12 +70,6 @@ public abstract class StreamerData {
             if(lib.loadFile()) {
                 
             }
-//            cmdsFile = Paths.get(Main.APPDATA + "streamerdata/" + channel + "/commands.txt");
-//            Main.log("chargement de : " + cmdsFile.toAbsolutePath().toString());
-//            if (!Files.exists(cmdsFile)) {
-//                FileRWHelper.createNewFile(cmdsFile);
-//                FileRWHelper.writeEndStringInFile(cmdsFile, "#" + this.channel);
-//            }
         } catch (NullPointerException e) {
             e.printStackTrace();
         }

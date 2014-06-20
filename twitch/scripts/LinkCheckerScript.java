@@ -15,8 +15,9 @@ public class LinkCheckerScript extends Script {
         String text = removeSpace(msg);
         if (text.contains("http") || text.contains("www.") || isTLD(msg)) {
             System.out.println("lien");
+            return true;
         }
-        return true;
+        return false;
     }
     
     private static String removeSpace(String msg) {
