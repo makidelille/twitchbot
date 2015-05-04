@@ -1,7 +1,8 @@
 # TWITCHBOT
 
 Ecrit par makidelille http://twitter.com/makidelille.
-
+Written by makidelille http://twitter.com/makidelille.
+French chat bot for twitch that's why the readme is in french :D
 
 
 ## UTILISATION
