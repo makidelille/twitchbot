@@ -63,3 +63,6 @@ French chat bot for twitch that's why the readme is in french :D
 
 * script hodor reponds HODOR à toute phrase contenant hodor.
 * script Xd reponds un truc Xd.
+* 
+## Dependicies
+* http://www.jibble.org/pircbot.php
